@@ -1,26 +1,82 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import { curveLinear } from "d3";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import XYScale from "./Utils/Scale";
+import Linchart from "./Utils/LineChart";
+import BarChart from "./Utils/BarChart/index";
+
+export default function App() {
+    const [lineData, setLineData] = useState<[number, number][][]>([]);
+    const XDataSet = ["오사카", "도쿄", "오사카2", "도쿄2"];
+
+    const height = 600;
+    const padding = 40;
+    const width = 1200;
+    return (
+        <>
+            {/* <BarChart /> */}
+            <svg width={width + padding} height={height + padding}>
+                <XYScale
+                    height={height}
+                    width={width}
+                    padding={padding}
+                    XScaleList={XDataSet}
+                    YScaleList={[0, 1000]}
+                >
+                    <Linchart
+                        data={lineData}
+                        curveType={curveLinear}
+                        option={{
+                            width: width,
+                            height: height,
+                            intervalWidth: 88,
+                            color: "green",
+                            strokeWidth: 1,
+                        }}
+                    />
+                </XYScale>
+            </svg>
+
+            {/* <XYScale>
+                <Linchart />
+            </XYScale> */}
+
+            <button
+                onClick={() => {
+                    setLineData([
+                        [
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                        ],
+                        [
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                            [Math.random() * 100, Math.random() * 100],
+                        ],
+                    ]);
+                }}
+            >
+                dddd
+            </button>
+        </>
+    );
 }
-
-export default App;
