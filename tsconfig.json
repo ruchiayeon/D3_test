@@ -1,11 +1,7 @@
 {
-    "compilerOptions": {
-        "allowJs": true,
-        "target": "ES5",
-        "outDir": "./build",
-        "moduleResolution": "Node",
-        "lib": ["ES2015", "DOM", "DOM.Iterable"]
-    },
-    "include": ["src"],
-    "exclude": ["node_modules", "build"]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
 }
