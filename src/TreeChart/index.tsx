@@ -44,6 +44,75 @@ function Chart({ data }: ChartProps) {
         setNodes(root.descendants() as CustomHierarchyNode[]);
     }, [data]);
 
+    function ClickCheckBox(event: Event, node: CustomHierarchyNode) {
+        if (event.isTrusted) {
+            return ChildChgCheck(node);
+        }
+    }
+
+    function CheckedWithParent(node: d3.HierarchyNode<CustomHierarchyNode>) {
+        if (node.parent) {
+            node.data.isChecked = node.parent.data.isChecked;
+            node.data.isChildrenChecked = node.parent.data.isChecked;
+
+            return;
+        }
+        node.data.isChildrenChecked = !node.data.isChecked;
+        return (node.data.isChecked = !node.data.isChecked);
+    }
+
+    // function IsChildAllChecked(node: CustomHierarchyNode) {
+    //     const childChecked: boolean[] = [];
+    //     ParentRecursion(node);
+    // }
+
+    // function ParentRecursion(node: CustomHierarchyNode) {
+    //     d3.hierarchy(node)
+    //         .ancestors()
+    //         .forEach((p) => {
+    //             if (p.parent) {
+    //                 return console.log(p);
+    //             }
+    //             console.log(p.data);
+    //         });
+    // }
+
+    // function ChgParentIsChildChecked(nodes) {}
+
+    //하위 체크
+    function ChildChgCheck(node: CustomHierarchyNode) {
+        // IsChildAllChecked(node);
+        d3.hierarchy(node)
+            .descendants()
+            .map((n) => {
+                CheckedWithParent(n);
+
+                //체크박스 css 변경
+                d3.select(
+                    document.getElementById(`${n.data.data.groupCode} checkbox`)
+                )
+                    .style("fill", `${n.data.isChecked ? "red" : "white"}`)
+                    .style("stroke", `${n.data.isChecked ? "red" : "black"}`)
+                    .style("fill-opacity", `${n.data.isChecked ? "1" : "0"}`);
+
+                //text css 변경
+                d3.select(
+                    document.getElementById(
+                        `${n.data.data.groupCode} groupText`
+                    )
+                )
+                    .text(
+                        () =>
+                            `${n.data.data.groupName} - ${n.data.isChecked} / ${n.data.isChildrenChecked}`
+                    )
+                    .style("fill", `${n.data.isChecked ? "red" : "black"}`);
+            });
+
+        return;
+        //1. 하위 체크 / 논체크
+        //2. 하위
+    }
+
     useEffect(() => {
         if (!roots) {
             return;
@@ -66,7 +135,11 @@ function Chart({ data }: ChartProps) {
             .attr("stroke-width", "1")
             .selectAll("path")
             .data(roots.links())
-            .join("path", (update) => update.attr("class", "update"))
+            .join(
+                (enter) => enter.append("path"),
+                (update) => update,
+                (exit) => exit.remove()
+            )
             .attr(
                 "d",
                 (d) => `
@@ -82,24 +155,28 @@ function Chart({ data }: ChartProps) {
             .append("g")
             .selectAll("g")
             .data(nodes)
-            .join("g", (update) => update.attr("class", "update"))
+            .join(
+                (enter) => enter.append("g"),
+                (update) => update,
+                (exit) => exit.remove()
+            )
             .attr("transform", (d) => `translate(0,${d.index * nodeSize})`);
 
         node.append("rect")
             .attr("width", 17)
             .attr("height", 17)
+            .attr("id", (d) => `${d.data.groupCode} checkbox`)
             .attr("x", (d) => d.depth * nodeSize + 7)
             .attr("y", -9)
             .attr("rx", 3)
             .attr("ry", 3)
-            .on("click", (event, d) => {
-                d3.select(event.currentTarget).style(
-                    "stroke",
-                    `${d.isChecked ? "black" : "red"}`
-                );
+            .on("click", ClickCheckBox)
 
-                d.isChecked = !d.isChecked;
-            })
+            .join(
+                (enter) => enter.append("rect"),
+                (update) => update,
+                (exit) => exit.remove()
+            )
             .attr(
                 "style",
                 "cursor: pointer; fill-opacity: 0; stroke-width: 1.5 ; stroke: black;"
@@ -107,14 +184,15 @@ function Chart({ data }: ChartProps) {
 
         node.append("text")
             .attr("dy", "0.32em")
-            .attr("id", (d) => d.data.groupCode)
+            .attr("id", (d) => `${d.data.groupCode} groupText`)
             .attr("x", (d) => d.depth * nodeSize + 30)
-            .attr("style", `cursor: pointer; opacity:1;`)
-            .on("click", (event) =>
-                d3.select(event.currentTarget).style("fill", "red")
+            .attr("style", `cursor: pointer; opacity: 1;`)
+            .join(
+                (enter) => enter.append("text"),
+                (update) => update,
+                (exit) => exit.remove()
             )
-            .text((d) => d.data.groupName)
-            .join("text", (update) => update.attr("class", "update"));
+            .text((d) => `${d.data.groupName} - ${d.isChecked}`);
 
         node.append("title").text((d) => d.data.fullPath);
     }, [roots, nodes]);
