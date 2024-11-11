@@ -61,27 +61,31 @@ function Chart({ data }: ChartProps) {
         return (node.data.isChecked = !node.data.isChecked);
     }
 
-    // function IsChildAllChecked(node: CustomHierarchyNode) {
-    //     const childChecked: boolean[] = [];
-    //     ParentRecursion(node);
-    // }
+    function IsChildAllChecked(node: CustomHierarchyNode) {
+        // const childChecked: boolean[] = [];
+        ParentRecursion(node);
+    }
 
-    // function ParentRecursion(node: CustomHierarchyNode) {
-    //     d3.hierarchy(node)
-    //         .ancestors()
-    //         .forEach((p) => {
-    //             if (p.parent) {
-    //                 return console.log(p);
-    //             }
-    //             console.log(p.data);
-    //         });
-    // }
+    function ParentRecursion(node: CustomHierarchyNode) {
+        d3.hierarchy(node)
+            .ancestors()
+            .map((p) => {
+                if (p.parent === null) {
+                    return ChgParentIsChildChecked(p.data);
+                }
+            });
+    }
 
-    // function ChgParentIsChildChecked(nodes) {}
+    function ChgParentIsChildChecked(parent: CustomHierarchyNode | null) {
+        console.log(parent);
+        if (parent) {
+            return ChgParentIsChildChecked(parent.parent);
+        }
+    }
 
     //하위 체크
     function ChildChgCheck(node: CustomHierarchyNode) {
-        // IsChildAllChecked(node);
+        IsChildAllChecked(node);
         d3.hierarchy(node)
             .descendants()
             .map((n) => {
