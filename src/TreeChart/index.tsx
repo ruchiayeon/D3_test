@@ -1,28 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
+
+import { DataNode, CustomHierarchyNode, ChartProps } from "./Interface";
+import { ParentRecursion, CheckedWithParent } from "./Parent";
+import { CheckedWithChild } from "./Children";
+import { ChgCheckBoxStyle } from "./Style";
 import "./test.css";
-
-interface DataNode {
-    groupCode: string;
-    groupName: string;
-    depth: number;
-    fullPath: string;
-    fullPathCode: string;
-    children?: DataNode[];
-}
-
-interface CustomHierarchyNode extends d3.HierarchyNode<DataNode> {
-    index: number;
-    isChecked: boolean;
-    isChildrenChecked: boolean;
-    isRemoved: boolean;
-    isDisabled: boolean;
-    isOpen: boolean;
-}
-
-interface ChartProps {
-    data: DataNode;
-}
 
 function Chart({ data }: ChartProps) {
     const [roots, setRoots] = React.useState<d3.HierarchyNode<DataNode>>();
@@ -35,6 +18,7 @@ function Chart({ data }: ChartProps) {
                 (d as CustomHierarchyNode).index = i++;
                 (d as CustomHierarchyNode).isChecked = false;
                 (d as CustomHierarchyNode).isChildrenChecked = false;
+                (d as CustomHierarchyNode).isChildrenAllChecked = false;
                 (d as CustomHierarchyNode).isRemoved = false;
                 (d as CustomHierarchyNode).isDisabled = false;
                 (d as CustomHierarchyNode).isOpen = false;
@@ -46,71 +30,29 @@ function Chart({ data }: ChartProps) {
 
     function ClickCheckBox(event: Event, node: CustomHierarchyNode) {
         if (event.isTrusted) {
-            return ChildChgCheck(node);
-        }
-    }
+            //하위 children 이벤트
+            ChildChgCheck(node);
 
-    function CheckedWithParent(node: d3.HierarchyNode<CustomHierarchyNode>) {
-        if (node.parent) {
-            node.data.isChecked = node.parent.data.isChecked;
-            node.data.isChildrenChecked = node.parent.data.isChecked;
-
-            return;
-        }
-        node.data.isChildrenChecked = !node.data.isChecked;
-        return (node.data.isChecked = !node.data.isChecked);
-    }
-
-    function IsChildAllChecked(node: CustomHierarchyNode) {
-        // const childChecked: boolean[] = [];
-        ParentRecursion(node);
-    }
-
-    function ParentRecursion(node: CustomHierarchyNode) {
-        d3.hierarchy(node)
-            .ancestors()
-            .map((p) => {
-                if (p.parent === null) {
-                    return ChgParentIsChildChecked(p.data);
-                }
-            });
-    }
-
-    function ChgParentIsChildChecked(parent: CustomHierarchyNode | null) {
-        console.log(parent);
-        if (parent) {
-            return ChgParentIsChildChecked(parent.parent);
+            // //상위 parent 이벤트
+            ParentRecursion(node);
         }
     }
 
     //하위 체크
     function ChildChgCheck(node: CustomHierarchyNode) {
-        IsChildAllChecked(node);
         d3.hierarchy(node)
             .descendants()
             .map((n) => {
                 CheckedWithParent(n);
+                CheckedWithChild(n);
 
-                //체크박스 css 변경
-                d3.select(
-                    document.getElementById(`${n.data.data.groupCode} checkbox`)
-                )
-                    .style("fill", `${n.data.isChecked ? "red" : "white"}`)
-                    .style("stroke", `${n.data.isChecked ? "red" : "black"}`)
-                    .style("fill-opacity", `${n.data.isChecked ? "1" : "0"}`);
-
-                //text css 변경
-                d3.select(
-                    document.getElementById(
-                        `${n.data.data.groupCode} groupText`
-                    )
-                )
-                    .text(
-                        () =>
-                            `${n.data.data.groupName} - ${n.data.isChecked} / ${n.data.isChildrenChecked}`
-                    )
-                    .style("fill", `${n.data.isChecked ? "red" : "black"}`);
+                ChgCheckBoxStyle({
+                    node: n.data,
+                    controlPoint: n.data.isChecked ? "green" : "black",
+                });
             });
+
+        // ParentRecursion(node);
 
         return;
         //1. 하위 체크 / 논체크
@@ -122,7 +64,7 @@ function Chart({ data }: ChartProps) {
             return;
         }
 
-        const nodeSize = 30;
+        const nodeSize = 35;
         const width = 928;
         const height = (nodes.length + 1) * nodeSize;
 
@@ -164,18 +106,16 @@ function Chart({ data }: ChartProps) {
                 (update) => update,
                 (exit) => exit.remove()
             )
-            .attr("transform", (d) => `translate(0,${d.index * nodeSize})`);
+            .attr("transform", (d) => `translate(0,${d.index * nodeSize - 5})`);
 
         node.append("rect")
             .attr("width", 17)
             .attr("height", 17)
             .attr("id", (d) => `${d.data.groupCode} checkbox`)
-            .attr("x", (d) => d.depth * nodeSize + 7)
-            .attr("y", -9)
+            .attr("x", (d) => d.depth * nodeSize + 5)
             .attr("rx", 3)
             .attr("ry", 3)
             .on("click", ClickCheckBox)
-
             .join(
                 (enter) => enter.append("rect"),
                 (update) => update,
@@ -186,10 +126,26 @@ function Chart({ data }: ChartProps) {
                 "cursor: pointer; fill-opacity: 0; stroke-width: 1.5 ; stroke: black;"
             );
 
+        node.append("polyline")
+            .attr("id", (d) => `${d.data.groupCode} mark`)
+            .on("click", ClickCheckBox)
+            .attr("width", 17)
+            .attr("height", 17)
+            .join(
+                (enter) => enter.append("polyline"),
+                (update) => update,
+                (exit) => exit.remove()
+            );
+
         node.append("text")
-            .attr("dy", "0.32em")
+            .attr("dy", "0.33em")
             .attr("id", (d) => `${d.data.groupCode} groupText`)
             .attr("x", (d) => d.depth * nodeSize + 30)
+            .attr("y", 10)
+            .on("click", (event, d) => {
+                console.log(event);
+                console.log(d);
+            })
             .attr("style", `cursor: pointer; opacity: 1;`)
             .join(
                 (enter) => enter.append("text"),
@@ -202,7 +158,7 @@ function Chart({ data }: ChartProps) {
     }, [roots, nodes]);
 
     return (
-        <section style={{ height: "100vh", overflow: "scroll", width: 500 }}>
+        <section style={{ height: "100vh", overflow: "scroll", width: 700 }}>
             <svg ref={svgRef} />
         </section>
     );
