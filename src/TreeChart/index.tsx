@@ -1,66 +1,43 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import * as d3 from "d3";
 
 import { DataNode, CustomHierarchyNode, ChartProps } from "./Interface";
-import { ParentRecursion, CheckedWithParent } from "./Parent";
-import { CheckedWithChild } from "./Children";
-import { ChgCheckBoxStyle } from "./Style";
+import { ParentRecursion } from "./Parent";
+import { ChildChgCheck } from "./Children";
+import CheckedData from "./CheckedData";
 import "./test.css";
 
-function Chart({ data }: ChartProps) {
+function Chart({ data, type, color, checked }: ChartProps) {
     const [roots, setRoots] = React.useState<d3.HierarchyNode<DataNode>>();
     const [nodes, setNodes] = React.useState<CustomHierarchyNode[]>([]);
-    const svgRef = useRef<SVGSVGElement | null>(null);
+    const svgRef = React.useRef<SVGSVGElement | null>(null);
 
     React.useEffect(() => {
-        const root = d3.hierarchy(data).eachBefore(
-            ((i) => (d) => {
-                (d as CustomHierarchyNode).index = i++;
-                (d as CustomHierarchyNode).isChecked = false;
-                (d as CustomHierarchyNode).isChildrenChecked = false;
-                (d as CustomHierarchyNode).isChildrenAllChecked = false;
-                (d as CustomHierarchyNode).isRemoved = false;
-                (d as CustomHierarchyNode).isDisabled = false;
-                (d as CustomHierarchyNode).isOpen = false;
-            })(0)
-        );
+        if (!data.groupCode) {
+            return;
+        }
+
+        const root = CheckedData({ checked, data, type });
+
         setRoots(root);
         setNodes(root.descendants() as CustomHierarchyNode[]);
-    }, [data]);
+    }, [data, checked, type]);
 
-    function ClickCheckBox(event: Event, node: CustomHierarchyNode) {
-        if (event.isTrusted) {
-            //하위 children 이벤트
-            ChildChgCheck(node);
+    const ClickCheckBox = React.useCallback(
+        (event: Event, node: CustomHierarchyNode) => {
+            if (event.isTrusted) {
+                //하위 children 이벤트
+                ChildChgCheck({ node, color: color, type });
 
-            // //상위 parent 이벤트
-            ParentRecursion(node);
-        }
-    }
+                // //상위 parent 이벤트
+                ParentRecursion({ node, color: color, type });
+            }
+        },
+        [color, type]
+    );
 
-    //하위 체크
-    function ChildChgCheck(node: CustomHierarchyNode) {
-        d3.hierarchy(node)
-            .descendants()
-            .map((n) => {
-                CheckedWithParent(n);
-                CheckedWithChild(n);
-
-                ChgCheckBoxStyle({
-                    node: n.data,
-                    controlPoint: n.data.isChecked ? "green" : "black",
-                });
-            });
-
-        // ParentRecursion(node);
-
-        return;
-        //1. 하위 체크 / 논체크
-        //2. 하위
-    }
-
-    useEffect(() => {
-        if (!roots) {
+    React.useEffect(() => {
+        if (!roots || !nodes) {
             return;
         }
 
@@ -152,10 +129,10 @@ function Chart({ data }: ChartProps) {
                 (update) => update,
                 (exit) => exit.remove()
             )
-            .text((d) => `${d.data.groupName} - ${d.isChecked}`);
+            .text((d) => `${d.data.groupName} - ${d.isRemoved}`);
 
         node.append("title").text((d) => d.data.fullPath);
-    }, [roots, nodes]);
+    }, [roots, nodes, ClickCheckBox]);
 
     return (
         <section style={{ height: "100vh", overflow: "scroll", width: 700 }}>

@@ -1,0 +1,22 @@
+[
+    {
+        "groupCode": "A0001",
+        "groupName": "원전 수출 본부",
+        "fullPathCode": "A0001"
+    },
+    {
+        "groupCode": "M1730",
+        "groupName": "파트 1731",
+        "fullPathCode": "A0001/M1730"
+    },
+    {
+        "groupCode": "Y4702",
+        "groupName": "파트 4703",
+        "fullPathCode": "A0001/M1730/Y4702"
+    },
+    {
+        "groupCode": "A0002",
+        "groupName": "전력 혁신 본부",
+        "fullPathCode": "A0002"
+    }
+]
