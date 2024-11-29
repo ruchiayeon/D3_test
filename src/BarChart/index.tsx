@@ -40,7 +40,7 @@ function BarChart({ data }: BarChartProps) {
             .range([marginLeft, width - marginRight])
             .padding(0.1);
 
-        const xAxis = d3.axisBottom(x).tickSizeOuter(0);
+        // const xAxis = d3.axisBottom(x).tickSizeOuter(0);
 
         // Create the vertical scale.
         const y = d3
@@ -61,16 +61,16 @@ function BarChart({ data }: BarChartProps) {
             .attr("width", x.bandwidth());
 
         // Append the axes.
-        svg.append("g")
-            .attr("class", "x-axis")
-            .attr("transform", `translate(0,${height - marginBottom})`)
-            .call(xAxis);
+        // svg.append("g")
+        //     .attr("class", "x-axis")
+        //     .attr("transform", `translate(0,${height - marginBottom})`)
+        //     .call(xAxis);
 
-        svg.append("g")
-            .attr("class", "y-axis")
-            .attr("transform", `translate(${marginLeft},0)`)
-            .call(d3.axisLeft(y))
-            .call((g) => g.select(".domain").remove());
+        // svg.append("g")
+        //     .attr("class", "y-axis")
+        //     .attr("transform", `translate(${marginLeft},0)`)
+        //     .call(d3.axisLeft(y))
+        //     .call((g) => g.select(".domain").remove());
 
         svg.transition().duration(250);
     }

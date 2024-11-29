@@ -39,7 +39,6 @@ interface ChartProps extends ITreeType {
     checked: ICheckedDataNode[];
 }
 
-
 export type {
     DataNode,
     CustomHierarchyNode,

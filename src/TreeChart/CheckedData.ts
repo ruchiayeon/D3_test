@@ -6,10 +6,12 @@ export default function CheckedData({
     checked,
     data,
     type,
+    defaultView,
 }: {
     checked: ICheckedDataNode[];
     data: DataNode;
     type: string;
+    defaultView: number;
 }) {
     const groupCodeList = checked.map((v) => v.groupCode);
 
@@ -17,15 +19,25 @@ export default function CheckedData({
         ((i) => (d) => {
             const data = d as CustomHierarchyNode;
 
-            data.index = i++;
+            data.index = -15;
+
+            if (!data.depth) {
+                return;
+            }
+
+            if (data.depth <= defaultView) {
+                data.index = i++;
+            }
+
             data.isChecked = false;
             data.isChildrenChecked = false;
             data.isChildrenAllChecked = false;
             data.isAdd = false;
             data.isDisabled = false;
-            data.isOpen = false;
+            data.isOpen = data.depth <= defaultView ? true : false;
             data.isRemoved = false;
             data.isAdd = false;
+            data.isChecked = groupCodeList.includes(d.data.groupCode);
 
             if (type === "remove") {
                 return (data.isRemoved = groupCodeList.includes(
@@ -36,8 +48,6 @@ export default function CheckedData({
             if (type === "add") {
                 return (data.isAdd = groupCodeList.includes(d.data.groupCode));
             }
-
-            return (data.isChecked = groupCodeList.includes(d.data.groupCode));
         })(0)
     );
 }

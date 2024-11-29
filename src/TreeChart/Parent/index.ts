@@ -1,7 +1,8 @@
 import * as d3 from "d3";
-import { CustomHierarchyNode, ITreeCheckBox } from "./Interface";
-import CheckBox from "./Style";
-import { ChgChildIsChildChecked } from "./Children";
+import { ITreeCheckBox } from "../Interface";
+import CheckBox from "../CheckBox";
+import { ChgChildIsChildChecked } from "../Child";
+import CheckedWithParent from "./CheckedWithParent";
 
 export function ParentRecursion({ node, color, type }: ITreeCheckBox) {
     //ancestors - 상향식
@@ -20,15 +21,7 @@ export function ParentRecursion({ node, color, type }: ITreeCheckBox) {
         });
 }
 
-export function CheckedWithParent(node: d3.HierarchyNode<CustomHierarchyNode>) {
-    if (node.parent) {
-        node.data.isChecked = node.parent.data.isChecked;
-        node.data.isChildrenChecked = node.parent.data.isChecked;
-        node.data.isChildrenAllChecked = node.parent.data.isChecked;
-        return;
-    }
-}
-
+//재귀의 형태로 체크 진행한다.
 function ChgParentIsChildChecked({ node, color, type }: ITreeCheckBox) {
     if (!node) {
         return;

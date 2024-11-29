@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { CustomHierarchyNode, ITreeCheckBox } from "./Interface";
+import { CustomHierarchyNode, ITreeCheckBox } from "../Interface";
 
 //class 형태도 사용 가능함
 export default class CheckBox implements ITreeCheckBox {
@@ -66,7 +66,7 @@ class CheckedText extends CheckBox {
                 () =>
                     `${this.node.data.groupName} - ${this.node.isChecked} / ${this.node.isChildrenChecked}/ ${this.node.isChildrenAllChecked}/ ${this.node.isRemoved}/ ${this.node.isDisabled} `
             )
-            .style("fill", `${this.color}`)
+            .style("fill", `${this.node.isChecked ? this.color : "black"}`)
             .style("font-weight", `${this.node.isChecked ? "bold" : 400}`);
 
         return this;
@@ -81,7 +81,7 @@ class CheckBoxColor extends CheckBox {
         )
             .style("fill", `${this.color}`)
             .style("stroke", `${this.color}`)
-            .style("fill-opacity", `${this.color === "black" ? 0 : 1}`);
+            .style("fill-opacity", `${this.node.isChecked ? 1 : 0}`);
 
         return this;
     }
