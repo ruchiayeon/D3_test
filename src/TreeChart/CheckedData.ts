@@ -18,26 +18,23 @@ export default function CheckedData({
     return d3.hierarchy(data).eachBefore(
         ((i) => (d) => {
             const data = d as CustomHierarchyNode;
-
-            data.index = -15;
-
+            data.index = 0;
             if (!data.depth) {
                 return;
             }
 
-            if (data.depth <= defaultView) {
-                data.index = i++;
-            }
-
+            data.index = i++;
             data.isChecked = false;
             data.isChildrenChecked = false;
             data.isChildrenAllChecked = false;
             data.isAdd = false;
             data.isDisabled = false;
             data.isOpen = data.depth <= defaultView ? true : false;
+            data.isChildOpen = data.depth < defaultView ? true : false;
             data.isRemoved = false;
-            data.isAdd = false;
             data.isChecked = groupCodeList.includes(d.data.groupCode);
+            data.y = (928 - 10 - 40) / (1 + data.height);
+            data.x = 10;
 
             if (type === "remove") {
                 return (data.isRemoved = groupCodeList.includes(

@@ -7,6 +7,9 @@ export default function CheckedWithParent(
         node.data.isChecked = node.parent.data.isChecked;
         node.data.isChildrenChecked = node.parent.data.isChecked;
         node.data.isChildrenAllChecked = node.parent.data.isChecked;
-        return;
+
+        return node;
     }
+
+    return node;
 }

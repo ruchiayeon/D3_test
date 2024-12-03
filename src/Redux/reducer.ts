@@ -1,17 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import {
-    DataNode,
-    ICheckedDataNode,
-    ITreeType,
-    CustomHierarchyNode,
-} from "../TreeChart/Interface";
+import { DataNode, ICheckedDataNode, ITreeType } from "../TreeChart/Interface";
 
 export const counterSlice = createSlice({
     name: "tree",
     initialState: {
-        type: "normal",
-        color: "blue",
-        HierarchyNode: {},
+        type: "",
+        color: "",
+        checkedMap: {},
         data: {
             groupCode: "",
             groupName: "",
@@ -22,12 +17,6 @@ export const counterSlice = createSlice({
         checked: [{ groupCode: "", groupName: "", fullPathCode: "" }],
     },
     reducers: {
-        setTreeHierarchy: (
-            state,
-            action: PayloadAction<{ data: CustomHierarchyNode[] }>
-        ) => {
-            state.HierarchyNode = action.payload.data;
-        },
         setTreeData: (state, action: PayloadAction<{ data: DataNode }>) => {
             state.data = action.payload.data;
         },
@@ -47,12 +36,7 @@ export const counterSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const {
-    setTreeData,
-    setTreeChecked,
-    setTreeType,
-    setTreeColor,
-    setTreeHierarchy,
-} = counterSlice.actions;
+export const { setTreeData, setTreeChecked, setTreeType, setTreeColor } =
+    counterSlice.actions;
 
 export default counterSlice.reducer;

@@ -7,8 +7,11 @@ interface DataNode {
     children?: DataNode[];
 }
 
-interface CustomHierarchyNode extends d3.HierarchyNode<DataNode> {
+interface CustomHierarchyNode extends d3.HierarchyNode<DataNode>, IChecked {
     index: number;
+}
+
+interface IChecked {
     isChecked: boolean;
     isChildrenChecked: boolean;
     isChildrenAllChecked: boolean;
@@ -16,6 +19,7 @@ interface CustomHierarchyNode extends d3.HierarchyNode<DataNode> {
     isAdd: boolean;
     isDisabled: boolean;
     isOpen: boolean;
+    isChildOpen: boolean;
 }
 
 interface ITreeType {
@@ -25,12 +29,28 @@ interface ITreeType {
 interface ITreeCheckBox extends ITreeType {
     node: CustomHierarchyNode;
     color: string;
+    changeChecked?: Map<string, object>;
 }
 
 interface ICheckedDataNode {
     groupCode: string;
     groupName: string;
     fullPathCode: string;
+}
+
+interface TreeNode {
+    id: number;
+    name: string;
+    depth: number;
+    groupCode: string;
+    fullPath: string;
+    fullPathCode: string;
+    children?: TreeNode[];
+    _children?: TreeNode[];
+    x: number;
+    y: number;
+    x0: number;
+    y0: number;
 }
 
 interface ChartProps extends ITreeType {
@@ -46,4 +66,6 @@ export type {
     ITreeType,
     ITreeCheckBox,
     ICheckedDataNode,
+    IChecked,
+    TreeNode,
 };

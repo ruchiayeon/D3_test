@@ -5,9 +5,10 @@ import { ChgChildIsChildChecked } from "../Child";
 import CheckedWithParent from "./CheckedWithParent";
 
 export function ParentRecursion({ node, color, type }: ITreeCheckBox) {
+    const changeChecked = new Map();
+
     //ancestors - 상향식
-    return d3
-        .hierarchy(node)
+    d3.hierarchy(node)
         .ancestors()
         .map((p) => {
             CheckedWithParent(p);
@@ -16,13 +17,21 @@ export function ParentRecursion({ node, color, type }: ITreeCheckBox) {
                     node: p.data,
                     color: color,
                     type: type,
+                    changeChecked: changeChecked,
                 });
             }
         });
+
+    return changeChecked;
 }
 
 //재귀의 형태로 체크 진행한다.
-function ChgParentIsChildChecked({ node, color, type }: ITreeCheckBox) {
+function ChgParentIsChildChecked({
+    node,
+    color,
+    type,
+    changeChecked,
+}: ITreeCheckBox) {
     if (!node) {
         return;
     }
@@ -33,6 +42,12 @@ function ChgParentIsChildChecked({ node, color, type }: ITreeCheckBox) {
         node.isChildrenChecked = childCheckStatus.includes(true);
 
         node.isChildrenAllChecked = !childCheckStatus.includes(false);
+
+        changeChecked?.set(node.data.groupCode, {
+            isChecked: node.isChecked,
+            isChildrenChecked: node.isChildrenChecked,
+            isChildrenAllChecked: node.isChildrenAllChecked,
+        });
 
         new CheckBox({
             node: node,
@@ -48,8 +63,13 @@ function ChgParentIsChildChecked({ node, color, type }: ITreeCheckBox) {
     }
 
     if (node.parent) {
-        ChgParentIsChildChecked({ node: node.parent, color, type });
+        ChgParentIsChildChecked({
+            node: node.parent,
+            color,
+            type,
+            changeChecked,
+        });
     }
 
-    return;
+    return changeChecked;
 }

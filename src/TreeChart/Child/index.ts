@@ -20,21 +20,25 @@ function CheckedWithChild(node: d3.HierarchyNode<CustomHierarchyNode>) {
             node.data.isChecked = !node.data.isChecked;
             node.data.isChildrenChecked = !node.data.isChecked;
             node.data.isChildrenAllChecked = !node.data.isChecked;
-            return;
+            return node;
         }
 
+        //하위 자식이 없기 때문에 마지막 node임을 알수있다.
         node.data.isChecked = !node.data.isChecked;
         node.data.isChildrenChecked = true;
         node.data.isChildrenAllChecked = true;
-        return;
+        return node;
     }
+
+    return node;
 }
 
 //기준점 체크
 export function ChildChgCheck({ node, color, type }: ITreeCheckBox) {
+    const changeChecked = new Map();
+
     //descendants -> 하양식
-    return d3
-        .hierarchy(node)
+    d3.hierarchy(node)
         .descendants()
         .map((n) => {
             //기준점에서 부모 node 확인
@@ -43,6 +47,12 @@ export function ChildChgCheck({ node, color, type }: ITreeCheckBox) {
             //기준점에서 자식 node 확인
             CheckedWithChild(n);
 
+            changeChecked.set(n.data.data.groupCode, {
+                isChecked: n.data.isChecked,
+                isChildrenChecked: n.data.isChildrenChecked,
+                isChildrenAllChecked: n.data.isChildrenAllChecked,
+            });
+
             //클릭한 기준점만 체크한다.
             return new CheckBox({
                 node: n.data,
@@ -50,4 +60,7 @@ export function ChildChgCheck({ node, color, type }: ITreeCheckBox) {
                 type,
             }).setCheckbox();
         });
+
+    changeChecked.delete(node.data.groupCode);
+    return changeChecked;
 }
