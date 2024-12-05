@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { DataNode, ICheckedDataNode, ITreeType } from "../TreeChart/Interface";
+import { ICheckedDataNode, ITreeType } from "../TreeChart/Interface";
 
 export const counterSlice = createSlice({
     name: "tree",
@@ -7,17 +7,11 @@ export const counterSlice = createSlice({
         type: "",
         color: "",
         checkedMap: {},
-        data: {
-            groupCode: "",
-            groupName: "",
-            depth: 0,
-            fullPath: "",
-            fullPathCode: "",
-        },
+        data: "",
         checked: [{ groupCode: "", groupName: "", fullPathCode: "" }],
     },
     reducers: {
-        setTreeData: (state, action: PayloadAction<{ data: DataNode }>) => {
+        setTreeData: (state, action: PayloadAction<{ data: string }>) => {
             state.data = action.payload.data;
         },
         setTreeChecked: (

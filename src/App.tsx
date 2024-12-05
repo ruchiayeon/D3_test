@@ -15,11 +15,12 @@ const App: React.FC = () => {
     const dispatch = useDispatch();
 
     React.useEffect(() => {
-        dispatch(setTreeData({ data: jsonData }));
+        dispatch(setTreeData({ data: JSON.stringify(jsonData) }));
         dispatch(setTreeChecked({ checked: checked }));
         dispatch(setTreeType({ type: "remove" }));
         dispatch(setTreeColor({ color: "green" }));
-    }, [dispatch]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <div>

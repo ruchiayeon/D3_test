@@ -54,7 +54,7 @@ interface TreeNode {
 }
 
 interface ChartProps extends ITreeType {
-    data: DataNode;
+    data: string;
     color: string;
     checked: ICheckedDataNode[];
 }
