@@ -2,35 +2,36 @@ import React from "react";
 import * as d3 from "d3";
 import { useSelector } from "react-redux";
 
+import CheckBox from "./CheckBox";
 import { CustomHierarchyNode, ChartProps, IChecked } from "./Interface";
 import { ParentRecursion } from "./Parent";
 import { ChildChgCheck } from "./Child";
 import CheckedData from "./CheckedData";
 import CheckedList from "./CheckedMap";
+import { convertColor } from "./CheckBox/setColor";
 import "./test.css";
-// import { setTreeHierarchy } from "../Redux/reducer";
 
 function Chart() {
-    // const dispatch = useDispatch();
     const [nodes, setNodes] = React.useState<CustomHierarchyNode[]>([]);
     const [checkednodes, setCheckedNodes] = React.useState<
         Map<string, IChecked>
     >(new Map());
     const [nodeHeight, setNodeHeight] = React.useState<number>(0);
+    const [nodewidth, setNodeWidth] = React.useState<number>(0);
     const getStore = useSelector(
         (state: { groups: ChartProps }) => state.groups
     );
 
     const svgRef = React.useRef<SVGSVGElement | null>(null);
-    const nodeSize = 35;
-    const width = 928;
+    const nodeHSize = 35;
+    const nodeWSize = 400;
 
     const svg = d3
         .select(svgRef.current)
-        .attr("width", width)
+        .attr("width", nodewidth)
         .attr("height", nodeHeight)
-        .attr("viewBox", [0, -26, width, nodeHeight])
-        .attr("style", "height: auto; font: 11pt sans-serif; ");
+        .attr("viewBox", [0, 20, nodewidth, nodeHeight])
+        .attr("style", "font: 1rem");
 
     function ClickCheckBox(event: Event, node: CustomHierarchyNode) {
         if (!event.isTrusted) {
@@ -66,40 +67,25 @@ function Chart() {
 
         const node = svg
             .append("g")
-            .attr("id", "group_tree")
             .selectAll("g")
             .data(nodes)
-            .join(
-                (enter) => enter.append("g"),
-                (update) => update,
-                (exit) => exit.remove()
-            )
+            .join("g")
             .attr("id", (d) => `${d.data.groupCode} groupItem`)
             .attr(
                 "transform",
-                (d) =>
-                    `translate(0,${
-                        d.isOpen
-                            ? d.index * nodeSize - 5
-                            : d.index * nodeSize - 15
-                    })`
+                (d) => `translate(0,${d.index * nodeHSize - 5})`
             );
 
         node.append("rect")
             .attr("width", 15)
             .attr("height", 15)
             .attr("id", (d) => `${d.data.groupCode} treecheckbox`)
-            .attr("x", (d) => d.depth * nodeSize - 30)
+            .attr("x", (d) => d.depth * nodeHSize - 30)
             .attr("y", 1)
             .attr("rx", 3)
             .attr("ry", 3)
             .on("click", TreeAcodian)
-            .join(
-                (enter) => enter.append("rect"),
-                (update) => update,
-                (exit) => exit.remove()
-            )
-            .style("fill", "#505050")
+            .join("rect")
             .style("stroke", "#505050")
             .style("stroke-width", 1.5)
             .style("fill-opacity", 0)
@@ -110,130 +96,193 @@ function Chart() {
         node.append("path")
             .attr("id", (d) => `${d.data.groupCode} treecheckboxmark`)
             .on("click", TreeAcodian)
+            .join("path")
             .attr(
                 "d",
                 (d) =>
                     `${
-                        d.isChildOpen && d.height
-                            ? `M${d.depth * nodeSize - 27} 8.5 H${
-                                  d.depth * nodeSize - 27
-                              } ${d.depth * nodeSize - 18}`
-                            : `M${d.depth * nodeSize - 22.5} 4 L${
-                                  d.depth * nodeSize - 22.5
+                        d.isChildOpen || !d.children
+                            ? `M${d.depth * nodeHSize - 27} 8.5 H${
+                                  d.depth * nodeHSize - 27
+                              } ${d.depth * nodeHSize - 18}`
+                            : `M${d.depth * nodeHSize - 22.5} 4 L${
+                                  d.depth * nodeHSize - 22.5
                               } 13
-                                M${d.depth * nodeSize - 27} 8.5 H${
-                                  d.depth * nodeSize - 27
-                              } ${d.depth * nodeSize - 18}`
+                                M${d.depth * nodeHSize - 27} 8.5 H${
+                                  d.depth * nodeHSize - 27
+                              } ${d.depth * nodeHSize - 18}`
                     }
                      `
             )
-            .style("fill", "#505050")
             .style("stroke", "#505050")
             .style("stroke-width", 1.5)
-            .style("fill-opacity", 0)
             .style("stroke-linecap", "round")
             .style("stroke-linejoin", "round")
             .style("cursor", "pointer")
             .style("display", (d) => `${d.isOpen ? "block" : "none"}`);
 
         node.append("rect")
+            .attr("id", (d) => `${d.data.groupCode} checkbox`)
+            .attr("x", (d) => d.depth * nodeHSize - 5)
             .attr("width", 17)
             .attr("height", 17)
-            .attr("id", (d) => `${d.data.groupCode} checkbox`)
-            .attr("x", (d) => d.depth * nodeSize - 5)
             .attr("rx", 3)
             .attr("ry", 3)
             .on("click", ClickCheckBox)
-            .join(
-                (enter) => enter.append("rect"),
-                (update) => update,
-                (exit) => exit.remove()
-            )
-            .style("fill", (d) => `${d.isChecked ? getStore.color : "black"}`)
-            .style("stroke", (d) => `${d.isChecked ? getStore.color : "black"}`)
-            .style("stroke-width", 1.5)
             .style("fill-opacity", 0)
             .style("cursor", "pointer")
-            .style("display", (d) => `${d.isOpen ? "block" : "none"}`);
+            .style("display", (d) => (d.isOpen ? "block" : "none"))
+            .join("rect");
 
         node.append("polyline")
+            .attr("id", (d) => `${d.data.groupCode} mark`)
             .attr("width", 17)
             .attr("height", 17)
-            .attr("id", (d) => `${d.data.groupCode} mark`)
-            .on("click", ClickCheckBox)
-            .join(
-                (enter) => enter.append("polyline"),
-                (update) => update,
-                (exit) => exit.remove()
-            )
-            .attr(
-                "points",
-                (d) =>
-                    `${d.depth * nodeSize - 1},${nodeSize - 26} ${
-                        d.depth * nodeSize + 3
-                    },${nodeSize - 22} ${d.depth * nodeSize + 8},${
-                        nodeSize - 30
-                    }`
-            )
-            .style("stroke", (d) => `${d.isChecked ? getStore.color : ""}`)
             .style("cursor", "pointer")
-            .style("fill", "none")
             .style("stroke-width", 3)
             .style("stroke-linecap", "round")
-            .style("display", (d) => `${d.isOpen ? "block" : "none"}`);
+            .style("fill-opacity", 0)
+            .style("display", (d) => (d.isOpen ? "block" : "none"))
+            .on("click", ClickCheckBox)
+            .join("polyline");
 
         node.append("text")
             .attr("dy", "0.33em")
             .attr("id", (d) => `${d.data.groupCode} groupText`)
-            .attr("x", (d) => d.depth * nodeSize + 20)
+            .attr("x", (d) => d.depth * nodeHSize + 20)
             .attr("y", 10)
             .style("cursor", "pointer")
-            .style("opacity", 1)
-            .style("display", (d) => `${d.isOpen ? "block" : "none"}`)
-            .join(
-                (enter) => enter.append("text"),
-                (update) => update,
-                (exit) => exit.remove()
-            )
-            .text(
-                (d) =>
-                    `${d.data.groupName}/${d.data.groupCode} - ${d.isChecked} ${d.isOpen}`
-            );
+            .style("display", (d) => (d.isOpen ? "block" : "none"))
+            .join("text");
 
         node.append("title").text((d) => d.data.fullPath);
     }
 
     function TreeAcodian(event: Event, node: CustomHierarchyNode) {
         //첫번째 전체 선택 기능 삭제 및 전체 open close 삭제
-        if (event.isTrusted && node.children) {
-            node.descendants().map((child, index) => {
-                if (index) {
-                    HiddenGroupItem(child);
+        if (event.isTrusted && node.children && !node.isChildOpen) {
+            node.isChildOpen = true;
+            node.children.map((child) => {
+                OpenGroupItem(child);
+            });
+
+            CheeckTranslate();
+
+            const nodesOpen = nodes.filter((n) => n.isOpen);
+
+            setNodeHeight(
+                (nodes.filter((n) => n.isOpen).length + 2) * nodeHSize
+            );
+            setNodeWidth(
+                200 +
+                    nodes.filter((n) => n.isOpen)[nodesOpen.length - 1].depth *
+                        nodeWSize
+            );
+
+            return;
+        }
+
+        if (event.isTrusted && node.children && node.isChildOpen) {
+            node.isChildOpen = false;
+            node.descendants().map((n, i) => {
+                if (i > 0) {
+                    return HiddenGroupItem(n);
                 }
             });
+
+            CheeckTranslate();
+
+            const nodesOpen = nodes.filter((n) => n.isOpen);
+
+            setNodeHeight(
+                (nodes.filter((n) => n.isOpen).length + 2) * nodeHSize
+            );
+            setNodeWidth(
+                200 +
+                    nodes.filter((n) => n.isOpen)[nodesOpen.length - 1].depth *
+                        nodeWSize
+            );
+            return;
         }
     }
 
-    function HiddenGroupItem(child: CustomHierarchyNode) {
-        child.isOpen = !child.isOpen;
-        child.isChildOpen = !child.isChildOpen;
+    function CheeckTranslate() {
+        let i: number = 0;
+        const depth: number = 1;
+        const duration = 100;
 
-        //svg 각 그룹
-        d3.select(document.getElementById(`${child.data.groupCode} groupItem`))
-            .transition()
-            .duration(300)
-            .style(
-                "display",
-                `${child.isOpen && child.parent?.isOpen ? "block" : "none"}`
-            )
-            .attr(
-                "transform",
-                `translate(0,${
-                    child.isOpen
-                        ? child.index * nodeSize - 5
-                        : child.index * nodeSize - 15
-                })`
-            );
+        nodes
+            .filter((nv) => nv.isOpen && nv.depth === depth)
+            .map((v) => {
+                d3.select(
+                    document.getElementById(`${v.data.groupCode} groupItem`)
+                )
+                    .transition()
+                    .duration(duration)
+                    .attr("transform", `translate(0,${i * nodeHSize - 5})`);
+
+                d3.select(
+                    document.getElementById(`${v.data.groupCode} groupText`)
+                )
+                    .transition()
+                    .duration(duration)
+                    .style("opacity", 1)
+                    .style(
+                        "fill",
+                        v.isOpen && v.isChecked ? getStore.color : "black"
+                    )
+                    .text(
+                        `${v.data.groupName} ${v.isOpen} ${v.isChildOpen} ${v.isChecked} ${v.isChildrenChecked}`
+                    );
+
+                return v.eachBefore((cv) => {
+                    if (cv.isOpen) {
+                        i++;
+
+                        d3.select(
+                            document.getElementById(
+                                `${cv.data.groupCode} groupItem`
+                            )
+                        )
+                            .transition()
+                            .duration(duration)
+                            .attr(
+                                "transform",
+                                `translate(0,${i * nodeHSize - 5})`
+                            );
+
+                        d3.select(
+                            document.getElementById(
+                                `${cv.data.groupCode} groupText`
+                            )
+                        )
+                            .transition()
+                            .duration(duration)
+                            .style("opacity", 1)
+                            .style(
+                                "fill",
+                                cv.isOpen && cv.isChecked
+                                    ? getStore.color
+                                    : "black"
+                            )
+                            .text(
+                                `${cv.data.groupName} ${cv.isOpen} ${cv.isChildOpen} ${cv.isChecked} ${cv.isChildrenChecked}`
+                            );
+
+                        return;
+                    }
+                });
+            });
+    }
+
+    function OpenGroupItem(child: CustomHierarchyNode) {
+        child.isOpen = !child.isOpen;
+
+        new CheckBox({
+            node: child,
+            color: convertColor(child, getStore.color),
+            type: getStore.type,
+        }).setCheckbox();
 
         if (child.parent) {
             d3.select(
@@ -242,16 +291,16 @@ function Chart() {
                 )
             ).attr(
                 "d",
-                child.isChildOpen || child.height
-                    ? `M${child.parent.depth * nodeSize - 27} 8.5 H${
-                          child.parent.depth * nodeSize - 27
-                      } ${child.parent.depth * nodeSize - 18}`
-                    : `M${child.parent.depth * nodeSize - 22.5} 4 L${
-                          child.parent.depth * nodeSize - 22.5
+                child.parent.isChildOpen
+                    ? `M${child.parent.depth * nodeHSize - 27} 8.5 H${
+                          child.parent.depth * nodeHSize - 27
+                      } ${child.parent.depth * nodeHSize - 18}`
+                    : `M${child.parent.depth * nodeHSize - 22.5} 4 L${
+                          child.parent.depth * nodeHSize - 22.5
                       } 13
-                                M${child.parent.depth * nodeSize - 27} 8.5 H${
-                          child.parent.depth * nodeSize - 27
-                      } ${child.parent.depth * nodeSize - 18}`
+                                M${child.parent.depth * nodeHSize - 27} 8.5 H${
+                          child.parent.depth * nodeHSize - 27
+                      } ${child.parent.depth * nodeHSize - 18}`
             );
         }
 
@@ -274,64 +323,78 @@ function Chart() {
                 "display",
                 `${child.isOpen && child.parent?.isOpen ? "block" : "none"}`
             );
+    }
 
-        //선택 체크박스
-        d3.select(document.getElementById(`${child.data.groupCode} checkbox`))
+    function HiddenGroupItem(child: CustomHierarchyNode) {
+        child.isOpen = false;
+        child.isChildOpen = false;
+
+        new CheckBox({
+            node: child,
+            color: convertColor(child, getStore.color),
+            type: getStore.type,
+        }).setCheckbox();
+
+        if (child.parent) {
+            d3.select(
+                document.getElementById(
+                    `${child.parent.data.groupCode} treecheckboxmark`
+                )
+            ).attr(
+                "d",
+                child.parent.isChildOpen
+                    ? `M${child.parent.depth * nodeHSize - 27} 8.5 H${
+                          child.parent.depth * nodeHSize - 27
+                      } ${child.parent.depth * nodeHSize - 18}`
+                    : `M${child.parent.depth * nodeHSize - 22.5} 4 L${
+                          child.parent.depth * nodeHSize - 22.5
+                      } 13
+                                M${child.parent.depth * nodeHSize - 27} 8.5 H${
+                          child.parent.depth * nodeHSize - 27
+                      } ${child.parent.depth * nodeHSize - 18}`
+            );
+        }
+
+        d3.select(
+            document.getElementById(`${child.data.groupCode} treecheckbox`)
+        )
             .transition()
             .duration(300)
-            .style("fill", `${child.isChecked ? getStore.color : "black"}`)
-            .style("stroke", `${child.isChecked ? getStore.color : "black"}`)
-            .style("fill-opacity", 0)
-            .style("opacity", `${child.isOpen && child.parent?.isOpen ? 1 : 0}`)
             .style(
                 "display",
-                `${child.isOpen && child.parent?.isOpen ? "" : "none"}`
+                `${child.isOpen && child.parent?.isOpen ? "block" : "none"}`
             );
 
-        //선택 체크박스 마크 상태
-        d3.select(document.getElementById(`${child.data.groupCode} mark`))
+        d3.select(
+            document.getElementById(`${child.data.groupCode} treecheckboxmark`)
+        )
             .transition()
             .duration(300)
-            .attr(
-                "points",
-                `${child.depth * nodeSize - 1},${nodeSize - 26} ${
-                    child.depth * nodeSize + 3
-                },${nodeSize - 22} ${child.depth * nodeSize + 8},${
-                    nodeSize - 30
-                }`
-            )
-            .style("stroke", `${child.isChecked ? getStore.color : ""}`)
-            .style("opacity", `${child.isOpen && child.parent?.isOpen ? 1 : 0}`)
             .style(
                 "display",
-                `${child.isOpen && child.parent?.isOpen ? "" : "none"}`
-            );
-
-        //그룹명
-        d3.select(document.getElementById(`${child.data.groupCode} groupText`))
-            .transition()
-            .duration(300)
-            .style("opacity", `${child.isOpen && child.parent?.isOpen ? 1 : 0}`)
-            .style(
-                "display",
-                `${!child.isOpen && child.parent?.isOpen ? "none" : ""}`
+                `${child.isOpen && child.parent?.isOpen ? "block" : "none"}`
             );
     }
 
     React.useEffect(() => {
-        if (!getStore.data.groupCode) {
+        if (!getStore.data) {
+            return;
+        }
+
+        const dataJson = JSON.parse(getStore.data);
+        if (!dataJson.groupCode) {
             return;
         }
 
         const root = CheckedData({
             checked: getStore.checked,
-            data: getStore.data,
+            data: dataJson,
             type: getStore.type,
-            defaultView: 2,
+            defaultView: 1,
         });
 
         const checkedroot = CheckedList({
-            data: getStore.data,
+            data: dataJson,
             type: getStore.type,
             checked: getStore.checked,
         });
@@ -339,18 +402,47 @@ function Chart() {
         setCheckedNodes(checkedroot);
 
         const nodes = root.descendants() as CustomHierarchyNode[];
+
         setNodes(nodes);
 
-        setNodeHeight((nodes.filter((n) => n.isOpen).length + 1) * nodeSize);
+        const nodesOpen = nodes.filter((n) => n.isOpen);
+
+        setNodeHeight((nodesOpen.length + 1) * nodeHSize);
+        setNodeWidth(
+            200 +
+                nodes.filter((n) => n.isOpen)[nodesOpen.length - 1].depth *
+                    nodeWSize
+        );
     }, [getStore]);
 
     React.useEffect(() => {
         MakeDefaultTree();
+        nodes.map((n) => {
+            if (!n.children) {
+                return new CheckBox({
+                    node: n,
+                    color: convertColor(n, getStore.color),
+                    type: getStore.type,
+                }).setCheckbox();
+            }
+
+            const childCheckStatus = n.children.map((c) => c.isChecked);
+
+            n.isChildrenChecked = childCheckStatus.includes(true);
+
+            n.isChildrenAllChecked = !childCheckStatus.includes(false);
+
+            return new CheckBox({
+                node: n,
+                color: convertColor(n, getStore.color),
+                type: getStore.type,
+            }).setCheckbox();
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [nodes]);
 
     return (
-        <section style={{ height: "100vh", overflow: "scroll", width: 700 }}>
+        <section style={{ height: "80vh", overflow: "scroll", width: 350 }}>
             <svg ref={svgRef} />
         </section>
     );

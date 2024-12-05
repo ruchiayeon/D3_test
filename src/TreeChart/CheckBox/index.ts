@@ -7,12 +7,14 @@ export default class CheckBox implements ITreeCheckBox {
     color: string;
     type: "normal" | "remove" | "add";
     nodeSize: number;
+    duration: number;
 
     constructor({ node, color, type }: ITreeCheckBox) {
         this.node = node;
         this.color = color;
         this.nodeSize = 35;
         this.type = type;
+        this.duration = 300;
     }
 
     setCheckbox() {
@@ -48,6 +50,10 @@ export default class CheckBox implements ITreeCheckBox {
             }).marker();
         }
 
+        if (this.type === "add") {
+            return;
+        }
+
         return new CheckBoxMarkNormal({
             node: this.node,
             color: this.color,
@@ -62,14 +68,16 @@ class CheckedText extends CheckBox {
         d3.select(
             document.getElementById(`${this.node.data.groupCode} groupText`)
         )
+            .transition()
+            .duration(this.duration)
             .text(
                 () =>
-                    `${this.node.data.groupName} - ${this.node.isChecked} /c ${this.node.isChildrenChecked}/call ${this.node.isChildrenAllChecked}`
+                    `${this.node.data.groupName} ${this.node.isOpen} ${this.node.isChildOpen} ${this.node.isChecked} ${this.node.isChildrenChecked}`
             )
-            .transition()
-            .duration(300)
             .style("fill", this.node.isChecked ? this.color : "black")
-            .style("font-weight", this.node.isChecked ? "bold" : 400);
+            .style("font-weight", this.node.isChecked ? 800 : 400)
+            .style("opacity", this.node.isOpen ? 1 : 0)
+            .style("display", this.node.isOpen ? "block" : "none");
 
         return this;
     }
@@ -82,10 +90,10 @@ class CheckBoxColor extends CheckBox {
             document.getElementById(`${this.node.data.groupCode} checkbox`)
         )
             .transition()
-            .duration(300)
-            .style("fill", this.color)
-            .style("stroke", this.color)
-            .style("fill-opacity", 0);
+            .duration(this.duration)
+            .style("fill", this.node.isChecked ? this.color : "black")
+            .style("stroke", this.node.isChecked ? this.color : "black")
+            .style("display", this.node.isOpen ? "block" : "none");
 
         return this;
     }
@@ -110,15 +118,13 @@ class CheckBoxMarkNormal extends CheckBox {
                         this.nodeSize - 30
                     }`
                 )
-                .transition()
-                .duration(300)
-                .style("stroke", this.color)
-                .style("cursor", "pointer")
-                .style("fill", "none")
-                .style("fill", "none")
-                .style("stroke-width", 3)
-                .style("stroke-linecap", "round")
-                .style("display", "block");
+                .style(
+                    "stroke",
+                    this.node.isOpen && this.node.isChecked
+                        ? this.color
+                        : "white"
+                )
+                .style("display", this.node.isOpen ? "block" : "none");
         }
 
         //하위 전체 체크 X & 본인 체크 O
@@ -135,15 +141,13 @@ class CheckBoxMarkNormal extends CheckBox {
                         this.nodeSize - 26
                     }`
                 )
-                .transition()
-                .duration(300)
-                .style("stroke", this.color)
-                .style("cursor", "pointer")
-                .style("fill", "none")
-                .style("fill", "none")
-                .style("stroke-width", 3)
-                .style("stroke-linecap", "round")
-                .style("display", "block");
+                .style(
+                    "stroke",
+                    this.node.isOpen && this.node.isChecked
+                        ? this.color
+                        : "white"
+                )
+                .style("display", this.node.isOpen ? "block" : "none");
         }
 
         //하위 체크 O & 본인 체크 X
@@ -163,13 +167,8 @@ class CheckBoxMarkNormal extends CheckBox {
                         this.nodeSize - 26
                     }`
                 )
-                .style("stroke", this.color)
-                .style("cursor", "pointer")
-                .style("fill", "none")
-                .style("fill", "none")
-                .style("stroke-width", 3)
-                .style("stroke-linecap", "round")
-                .style("display", "block");
+                .style("stroke", this.node.isOpen ? this.color : "white")
+                .style("display", this.node.isOpen ? "block" : "none");
         }
 
         //하위 전체 체크 X & 본인 체크 X
@@ -205,13 +204,13 @@ class CheckBoxMarkRemove extends CheckBox {
                         this.nodeSize - 30
                     }`
                 )
-                .style("stroke", this.color)
-                .style("cursor", "pointer")
-                .style("fill", "none")
-                .style("fill", "none")
-                .style("stroke-width", 3)
-                .style("stroke-linecap", "round")
-                .style("display", "block");
+                .style(
+                    "stroke",
+                    this.node.isOpen && this.node.isChecked
+                        ? this.color
+                        : "white"
+                )
+                .style("display", this.node.isOpen ? "block" : "none");
         }
 
         //하위 전체 체크 X & 본인 체크 O
@@ -228,13 +227,13 @@ class CheckBoxMarkRemove extends CheckBox {
                         this.nodeSize - 26
                     }`
                 )
-                .style("stroke", this.color)
-                .style("cursor", "pointer")
-                .style("fill", "none")
-                .style("fill", "none")
-                .style("stroke-width", 3)
-                .style("stroke-linecap", "round")
-                .style("display", "block");
+                .style(
+                    "stroke",
+                    this.node.isOpen && this.node.isChecked
+                        ? this.color
+                        : "white"
+                )
+                .style("display", this.node.isOpen ? "block" : "none");
         }
 
         //하위 체크 O & 본인 체크 X
@@ -254,13 +253,8 @@ class CheckBoxMarkRemove extends CheckBox {
                         this.nodeSize - 26
                     }`
                 )
-                .style("stroke", this.color)
-                .style("cursor", "pointer")
-                .style("fill", "none")
-                .style("fill", "none")
-                .style("stroke-width", 3)
-                .style("stroke-linecap", "round")
-                .style("display", "block");
+                .style("stroke", this.node.isOpen ? this.color : "white")
+                .style("display", this.node.isOpen ? "block" : "none");
         }
 
         //하위 전체 체크 X & 본인 체크 X

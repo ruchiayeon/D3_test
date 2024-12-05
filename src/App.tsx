@@ -6,6 +6,7 @@ import {
     setTreeChecked,
     setTreeType,
     setTreeColor,
+    setTreeTypeColor,
 } from "./Redux/reducer";
 
 import jsonData from "./TreeChart/groupJason.json";
@@ -17,8 +18,9 @@ const App: React.FC = () => {
     React.useEffect(() => {
         dispatch(setTreeData({ data: JSON.stringify(jsonData) }));
         dispatch(setTreeChecked({ checked: checked }));
-        dispatch(setTreeType({ type: "remove" }));
-        dispatch(setTreeColor({ color: "green" }));
+        dispatch(setTreeType({ type: "add" }));
+        dispatch(setTreeColor({ color: "blue" }));
+        dispatch(setTreeTypeColor({ typecolor: "blue" }));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

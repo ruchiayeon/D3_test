@@ -5,6 +5,7 @@ export const counterSlice = createSlice({
     name: "tree",
     initialState: {
         type: "",
+        typecolor: "",
         color: "",
         checkedMap: {},
         data: "",
@@ -26,11 +27,22 @@ export const counterSlice = createSlice({
         setTreeColor: (state, action: PayloadAction<{ color: string }>) => {
             state.color = action.payload.color;
         },
+        setTreeTypeColor: (
+            state,
+            action: PayloadAction<{ typecolor: string }>
+        ) => {
+            state.typecolor = action.payload.typecolor;
+        },
     },
 });
 
 // Action creators are generated for each case reducer function
-export const { setTreeData, setTreeChecked, setTreeType, setTreeColor } =
-    counterSlice.actions;
+export const {
+    setTreeData,
+    setTreeChecked,
+    setTreeType,
+    setTreeColor,
+    setTreeTypeColor,
+} = counterSlice.actions;
 
 export default counterSlice.reducer;

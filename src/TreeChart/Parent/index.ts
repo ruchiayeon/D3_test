@@ -3,6 +3,7 @@ import { ITreeCheckBox } from "../Interface";
 import CheckBox from "../CheckBox";
 import { ChgChildIsChildChecked } from "../Child";
 import CheckedWithParent from "./CheckedWithParent";
+import { convertColor } from "../CheckBox/setColor";
 
 export function ParentRecursion({ node, color, type }: ITreeCheckBox) {
     const changeChecked = new Map();
@@ -52,13 +53,7 @@ function ChgParentIsChildChecked({
         new CheckBox({
             node: node,
             type: type,
-            color: node.isChildrenChecked
-                ? node.isChecked
-                    ? color
-                    : "#939292"
-                : node.isChecked
-                ? color
-                : "black",
+            color: convertColor(node, color),
         }).setCheckbox();
     }
 

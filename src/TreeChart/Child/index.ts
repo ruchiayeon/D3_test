@@ -2,6 +2,7 @@ import * as d3 from "d3";
 import { CustomHierarchyNode, ITreeCheckBox } from "../Interface";
 import CheckedWithParent from "../Parent/CheckedWithParent";
 import CheckBox from "../CheckBox";
+import { convertColor } from "../CheckBox/setColor";
 
 //바로 하위 그룹 체크여부 확인
 export function ChgChildIsChildChecked(children: CustomHierarchyNode) {
@@ -56,8 +57,8 @@ export function ChildChgCheck({ node, color, type }: ITreeCheckBox) {
             //클릭한 기준점만 체크한다.
             return new CheckBox({
                 node: n.data,
-                color: n.data.isChecked ? color : "black",
-                type,
+                color: convertColor(n.data, color),
+                type: type,
             }).setCheckbox();
         });
 
