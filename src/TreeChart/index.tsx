@@ -6,7 +6,7 @@ import CheckBox from "./CheckBox";
 import { CustomHierarchyNode, ChartProps, IChecked } from "./Interface";
 import { ParentRecursion } from "./Parent";
 import { ChildChgCheck } from "./Child";
-import CheckedData from "./CheckedData";
+import CheckedData from "./CheckOptions";
 import CheckedList from "./CheckedMap";
 import { convertColor } from "./CheckBox/setColor";
 import "./test.css";
@@ -24,7 +24,7 @@ function Chart() {
 
     const svgRef = React.useRef<SVGSVGElement | null>(null);
     const nodeHSize = 35;
-    const nodeWSize = 400;
+    const nodeWSize = 30;
 
     const svg = d3
         .select(svgRef.current)
@@ -56,6 +56,9 @@ function Chart() {
         parent.forEach((v, k) => checkednodes.set(k, v));
 
         setCheckedNodes(checkednodes);
+
+        //타입이 삭제기능일때,
+        //타입이 추가기능일때,
 
         return;
     }
@@ -163,47 +166,40 @@ function Chart() {
         if (event.isTrusted && node.children && !node.isChildOpen) {
             node.isChildOpen = true;
             node.children.map((child) => {
-                OpenGroupItem(child);
+                child.isOpen = !child.isOpen;
+                OpenCloseGroupItem(child);
             });
 
-            CheeckTranslate();
-
-            const nodesOpen = nodes.filter((n) => n.isOpen);
-
-            setNodeHeight(
-                (nodes.filter((n) => n.isOpen).length + 2) * nodeHSize
-            );
-            setNodeWidth(
-                200 +
-                    nodes.filter((n) => n.isOpen)[nodesOpen.length - 1].depth *
-                        nodeWSize
-            );
-
-            return;
+            return TreeAcodianTranslate();
         }
 
         if (event.isTrusted && node.children && node.isChildOpen) {
             node.isChildOpen = false;
             node.descendants().map((n, i) => {
                 if (i > 0) {
-                    return HiddenGroupItem(n);
+                    n.isOpen = false;
+                    n.isChildOpen = false;
+                    OpenCloseGroupItem(n);
                 }
             });
 
-            CheeckTranslate();
-
-            const nodesOpen = nodes.filter((n) => n.isOpen);
-
-            setNodeHeight(
-                (nodes.filter((n) => n.isOpen).length + 2) * nodeHSize
-            );
-            setNodeWidth(
-                200 +
-                    nodes.filter((n) => n.isOpen)[nodesOpen.length - 1].depth *
-                        nodeWSize
-            );
-            return;
+            return TreeAcodianTranslate();
         }
+    }
+
+    function TreeAcodianTranslate() {
+        CheeckTranslate();
+
+        const nodesOpen = nodes.filter((n) => n.isOpen);
+
+        setNodeHeight((nodes.filter((n) => n.isOpen).length + 2) * nodeHSize);
+        setNodeWidth(
+            200 +
+                nodes.filter((n) => n.isOpen)[nodesOpen.length - 1].depth *
+                    nodeWSize
+        );
+
+        return;
     }
 
     function CheeckTranslate() {
@@ -231,9 +227,7 @@ function Chart() {
                         "fill",
                         v.isOpen && v.isChecked ? getStore.color : "black"
                     )
-                    .text(
-                        `${v.data.groupName} ${v.isOpen} ${v.isChildOpen} ${v.isChecked} ${v.isChildrenChecked}`
-                    );
+                    .text(v.data.groupName);
 
                 return v.eachBefore((cv) => {
                     if (cv.isOpen) {
@@ -265,9 +259,7 @@ function Chart() {
                                     ? getStore.color
                                     : "black"
                             )
-                            .text(
-                                `${cv.data.groupName} ${cv.isOpen} ${cv.isChildOpen} ${cv.isChecked} ${cv.isChildrenChecked}`
-                            );
+                            .text(cv.data.groupName);
 
                         return;
                     }
@@ -275,60 +267,7 @@ function Chart() {
             });
     }
 
-    function OpenGroupItem(child: CustomHierarchyNode) {
-        child.isOpen = !child.isOpen;
-
-        new CheckBox({
-            node: child,
-            color: convertColor(child, getStore.color),
-            type: getStore.type,
-        }).setCheckbox();
-
-        if (child.parent) {
-            d3.select(
-                document.getElementById(
-                    `${child.parent.data.groupCode} treecheckboxmark`
-                )
-            ).attr(
-                "d",
-                child.parent.isChildOpen
-                    ? `M${child.parent.depth * nodeHSize - 27} 8.5 H${
-                          child.parent.depth * nodeHSize - 27
-                      } ${child.parent.depth * nodeHSize - 18}`
-                    : `M${child.parent.depth * nodeHSize - 22.5} 4 L${
-                          child.parent.depth * nodeHSize - 22.5
-                      } 13
-                                M${child.parent.depth * nodeHSize - 27} 8.5 H${
-                          child.parent.depth * nodeHSize - 27
-                      } ${child.parent.depth * nodeHSize - 18}`
-            );
-        }
-
-        d3.select(
-            document.getElementById(`${child.data.groupCode} treecheckbox`)
-        )
-            .transition()
-            .duration(300)
-            .style(
-                "display",
-                `${child.isOpen && child.parent?.isOpen ? "block" : "none"}`
-            );
-
-        d3.select(
-            document.getElementById(`${child.data.groupCode} treecheckboxmark`)
-        )
-            .transition()
-            .duration(300)
-            .style(
-                "display",
-                `${child.isOpen && child.parent?.isOpen ? "block" : "none"}`
-            );
-    }
-
-    function HiddenGroupItem(child: CustomHierarchyNode) {
-        child.isOpen = false;
-        child.isChildOpen = false;
-
+    function OpenCloseGroupItem(child: CustomHierarchyNode) {
         new CheckBox({
             node: child,
             color: convertColor(child, getStore.color),
@@ -382,11 +321,12 @@ function Chart() {
         }
 
         const dataJson = JSON.parse(getStore.data);
+
         if (!dataJson.groupCode) {
             return;
         }
 
-        const root = CheckedData({
+        const root = CheckedData.createEventClass(getStore.type, {
             checked: getStore.checked,
             data: dataJson,
             type: getStore.type,
@@ -398,6 +338,8 @@ function Chart() {
             type: getStore.type,
             checked: getStore.checked,
         });
+
+        if (!root) return;
 
         setCheckedNodes(checkedroot);
 

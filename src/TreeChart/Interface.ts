@@ -23,7 +23,7 @@ interface IChecked {
 }
 
 interface ITreeType {
-    type: "normal" | "remove" | "add";
+    type: "default" | "remove" | "add";
 }
 
 interface ITreeCheckBox extends ITreeType {
@@ -56,6 +56,8 @@ interface TreeNode {
 interface ChartProps extends ITreeType {
     data: string;
     color: string;
+    width: number;
+    height: number;
     checked: ICheckedDataNode[];
 }
 

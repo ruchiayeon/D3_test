@@ -5,7 +5,7 @@ import { CustomHierarchyNode, ITreeCheckBox } from "../Interface";
 export default class CheckBox implements ITreeCheckBox {
     node: CustomHierarchyNode;
     color: string;
-    type: "normal" | "remove" | "add";
+    type: "default" | "remove" | "add";
     nodeSize: number;
     duration: number;
 

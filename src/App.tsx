@@ -18,7 +18,7 @@ const App: React.FC = () => {
     React.useEffect(() => {
         dispatch(setTreeData({ data: JSON.stringify(jsonData) }));
         dispatch(setTreeChecked({ checked: checked }));
-        dispatch(setTreeType({ type: "add" }));
+        dispatch(setTreeType({ type: "default" }));
         dispatch(setTreeColor({ color: "blue" }));
         dispatch(setTreeTypeColor({ typecolor: "blue" }));
         // eslint-disable-next-line react-hooks/exhaustive-deps
