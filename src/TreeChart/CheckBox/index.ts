@@ -42,19 +42,7 @@ export default class CheckBox implements ITreeCheckBox {
     }
 
     marker() {
-        if (this.type === "remove") {
-            return new CheckBoxMarkRemove({
-                node: this.node,
-                color: this.color,
-                type: this.type,
-            }).marker();
-        }
-
-        if (this.type === "add") {
-            return;
-        }
-
-        return new CheckBoxMarkNormal({
+        return new CheckBoxMark({
             node: this.node,
             color: this.color,
             type: this.type,
@@ -70,12 +58,9 @@ class CheckedText extends CheckBox {
         )
             .transition()
             .duration(this.duration)
-            .text(
-                () =>
-                    `${this.node.data.groupName} ${this.node.isOpen} ${this.node.isChildOpen} ${this.node.isChecked} ${this.node.isChildrenChecked}`
-            )
+            .text(() => this.node.data.groupName)
             .style("fill", this.node.isChecked ? this.color : "black")
-            .style("font-weight", this.node.isChecked ? 800 : 400)
+            .style("font-weight", this.node.isChecked ? 600 : 400)
             .style("opacity", this.node.isOpen ? 1 : 0)
             .style("display", this.node.isOpen ? "block" : "none");
 
@@ -100,82 +85,10 @@ class CheckBoxColor extends CheckBox {
 }
 
 //Check box mark 설정
-class CheckBoxMarkNormal extends CheckBox {
+class CheckBoxMark extends CheckBox {
     marker() {
-        //하위 전체 체크 O & 본인도 체크 O
-        if (this.node.isChecked && this.node.isChildrenAllChecked) {
-            return d3
-                .select(
-                    document.getElementById(`${this.node.data.groupCode} mark`)
-                )
-                .attr(
-                    "points",
-                    `${this.node.depth * this.nodeSize - 1},${
-                        this.nodeSize - 26
-                    } ${this.node.depth * this.nodeSize + 3},${
-                        this.nodeSize - 22
-                    } ${this.node.depth * this.nodeSize + 8},${
-                        this.nodeSize - 30
-                    }`
-                )
-                .style(
-                    "stroke",
-                    this.node.isOpen && this.node.isChecked
-                        ? this.color
-                        : "white"
-                )
-                .style("display", this.node.isOpen ? "block" : "none");
-        }
-
-        //하위 전체 체크 X & 본인 체크 O
-        if (this.node.isChecked && !this.node.isChildrenAllChecked) {
-            return d3
-                .select(
-                    document.getElementById(`${this.node.data.groupCode} mark`)
-                )
-                .attr(
-                    "points",
-                    `${this.node.depth * this.nodeSize - 1},${
-                        this.nodeSize - 26
-                    } ${this.node.depth * this.nodeSize + 8},${
-                        this.nodeSize - 26
-                    }`
-                )
-                .style(
-                    "stroke",
-                    this.node.isOpen && this.node.isChecked
-                        ? this.color
-                        : "white"
-                )
-                .style("display", this.node.isOpen ? "block" : "none");
-        }
-
-        //하위 체크 O & 본인 체크 X
-        if (
-            !this.node.isChecked &&
-            (this.node.isChildrenAllChecked || this.node.isChildrenChecked)
-        ) {
-            return d3
-                .select(
-                    document.getElementById(`${this.node.data.groupCode} mark`)
-                )
-                .attr(
-                    "points",
-                    `${this.node.depth * this.nodeSize - 1},${
-                        this.nodeSize - 26
-                    } ${this.node.depth * this.nodeSize + 8},${
-                        this.nodeSize - 26
-                    }`
-                )
-                .style("stroke", this.node.isOpen ? this.color : "white")
-                .style("display", this.node.isOpen ? "block" : "none");
-        }
-
-        //하위 전체 체크 X & 본인 체크 X
-        if (
-            !this.node.isChecked &&
-            !(this.node.isChildrenAllChecked || this.node.isChildrenChecked)
-        ) {
+        //하위 그룹없음 && 본인체크 X
+        if (!this.node.children && !this.node.isChecked) {
             return d3
                 .select(
                     document.getElementById(`${this.node.data.groupCode} mark`)
@@ -183,11 +96,7 @@ class CheckBoxMarkNormal extends CheckBox {
                 .attr("points", "0,0 0,0")
                 .style("display", "none");
         }
-    }
-}
 
-class CheckBoxMarkRemove extends CheckBox {
-    marker() {
         //하위 전체 체크 O & 본인도 체크 O
         if (this.node.isChecked && this.node.isChildrenAllChecked) {
             return d3
