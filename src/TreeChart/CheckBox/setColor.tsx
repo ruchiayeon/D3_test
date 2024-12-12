@@ -1,6 +1,5 @@
 import { CustomHierarchyNode } from "../Interface";
 export function convertColor(node: CustomHierarchyNode, color: string) {
-    console.log(node.isDisabled);
     if (node.isChecked) return color;
     if (
         node.isDisabled ||
