@@ -228,6 +228,23 @@ class CheckDefaultBoxMark extends SetCheckBox {
 
 class CheckRemoveBoxMark extends SetCheckBox {
     marker() {
+        if (!this.node.isChecked && this.node.isRemoved) {
+            return d3
+                .select(
+                    document.getElementById(`${this.node.data.groupCode} mark`)
+                )
+                .attr(
+                    "points",
+                    `${this.node.depth * this.nodeSize - 1},${
+                        this.nodeSize - 26
+                    } ${this.node.depth * this.nodeSize + 8},${
+                        this.nodeSize - 26
+                    }`
+                )
+                .style("stroke", "red")
+                .style("display", this.node.isOpen ? "block" : "none");
+        }
+
         //하위 그룹없음 && 본인체크 X
         if (!this.node.children && !this.node.isChecked) {
             return d3
