@@ -28,7 +28,7 @@ interface ITreeType {
 
 interface ITreeCheckBox extends ITreeType {
     node: CustomHierarchyNode;
-    color: string;
+    color: { defaultColor: string; typeColor: string };
     changeChecked?: Map<string, object>;
 }
 

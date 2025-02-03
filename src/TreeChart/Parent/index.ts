@@ -53,7 +53,10 @@ function ChgParentIsChildChecked({
         new CheckBox({
             node: node,
             type: type,
-            color: convertColor(node, color),
+            color: {
+                typeColor: convertColor(node, color.typeColor),
+                defaultColor: color.defaultColor,
+            },
         }).setCheckbox();
     }
 

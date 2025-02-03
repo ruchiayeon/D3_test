@@ -363,7 +363,7 @@ function Chart() {
             if (!n.children) {
                 return new CheckBox({
                     node: n,
-                    color: convertColor(n, getStore.color),
+                        typeColor: convertColor(n, getStore.color.typeColor),
                     type: getStore.type,
                 }).setCheckbox();
             }
@@ -376,7 +376,7 @@ function Chart() {
 
             return new CheckBox({
                 node: n,
-                color: convertColor(n, getStore.color),
+                },
                 type: getStore.type,
             }).setCheckbox();
         });

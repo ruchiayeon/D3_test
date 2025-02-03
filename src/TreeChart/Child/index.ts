@@ -57,11 +57,15 @@ export function ChildChgCheck({ node, color, type }: ITreeCheckBox) {
             //클릭한 기준점만 체크한다.
             return new CheckBox({
                 node: n.data,
-                color: convertColor(n.data, color),
+                color: {
+                    typeColor: convertColor(n.data, color.typeColor),
+                    defaultColor: color.defaultColor,
+                },
                 type: type,
             }).setCheckbox();
         });
 
     changeChecked.delete(node.data.groupCode);
+
     return changeChecked;
 }

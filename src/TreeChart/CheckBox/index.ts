@@ -4,7 +4,7 @@ import { CustomHierarchyNode, ITreeCheckBox } from "../Interface";
 //class 형태도 사용 가능함
 export default class CheckBox implements ITreeCheckBox {
     node: CustomHierarchyNode;
-    color: string;
+    color: { defaultColor: string; typeColor: string };
     type: "default" | "remove" | "add";
     nodeSize: number;
     duration: number;
