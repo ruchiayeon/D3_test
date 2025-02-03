@@ -31,10 +31,7 @@ class CheckedDefaultText extends SetCheckBox {
         )
             .transition()
             .duration(this.duration)
-            .text(
-                () =>
-                    `${this.node.data.groupName} ${this.node.isRemoved} | ${this.node.isChecked}`
-            )
+            .text(this.node.data.groupName)
             .style(
                 "fill",
                 this.node.isChecked
@@ -57,10 +54,7 @@ class CheckedRemovedText extends SetCheckBox {
         )
             .transition()
             .duration(this.duration)
-            .text(
-                () =>
-                    `${this.node.data.groupName} ${this.node.isRemoved} | ${this.node.isChecked}`
-            )
+            .text(this.node.data.groupName)
             .style(
                 "fill",
                 this.node.isRemoved

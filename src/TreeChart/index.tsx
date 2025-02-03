@@ -250,9 +250,7 @@ function Chart() {
                                 : getStore.color.defaultColor
                         )
 
-                        .text(
-                            `${cv.data.groupName} ${cv.isRemoved} | ${cv.isChecked}`
-                        );
+                        .text(cv.data.groupName);
                 })
             );
     }
