@@ -2,7 +2,7 @@ import * as d3 from "d3";
 
 import CheckBox from "../CheckBox";
 import { CustomHierarchyNode, ChartProps } from "../Interface";
-import { convertColor } from "../CheckBox/setColor";
+import { ConvertColor } from "../CheckBox/setColor";
 
 export default function OpenCloseGroupItem(
     child: CustomHierarchyNode,
@@ -11,7 +11,7 @@ export default function OpenCloseGroupItem(
     new CheckBox({
         node: child,
         color: {
-            typeColor: convertColor(child, getStore.color.typeColor),
+            typeColor: ConvertColor(child, getStore.color.typeColor),
             defaultColor: getStore.color.defaultColor,
         },
         type: getStore.type,

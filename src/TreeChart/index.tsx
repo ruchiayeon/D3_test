@@ -4,15 +4,19 @@ import { useSelector } from "react-redux";
 
 import CheckBox from "./CheckBox";
 import OpenCloseGroupItem from "./Accodian";
-import { CustomHierarchyNode, ChartProps, IChecked } from "./Interface";
 import { ParentRecursion } from "./Parent";
 import { ChildChgCheck } from "./Child";
 import CheckedData from "./CheckOptions";
 import CheckedList from "./CheckedMap";
-import { convertColor } from "./CheckBox/setColor";
+import { ConvertColor } from "./CheckBox/setColor";
+
+//Interface
+import { CustomHierarchyNode, ChartProps, IChecked } from "./Interface";
+
+//css
 import "./test.css";
 
-function Chart() {
+function TeamChart() {
     const [nodes, setNodes] = React.useState<CustomHierarchyNode[]>([]);
     const [checkednodes, setCheckedNodes] = React.useState<
         Map<string, IChecked>
@@ -304,7 +308,7 @@ function Chart() {
                 return new CheckBox({
                     node: n,
                     color: {
-                        typeColor: convertColor(n, getStore.color.typeColor),
+                        typeColor: ConvertColor(n, getStore.color.typeColor),
                         defaultColor: getStore.color.defaultColor,
                     },
                     type: getStore.type,
@@ -320,7 +324,7 @@ function Chart() {
             return new CheckBox({
                 node: n,
                 color: {
-                    typeColor: convertColor(n, getStore.color.typeColor),
+                    typeColor: ConvertColor(n, getStore.color.typeColor),
                     defaultColor: getStore.color.defaultColor,
                 },
                 type: getStore.type,
@@ -336,4 +340,4 @@ function Chart() {
     );
 }
 
-export default Chart;
+export default TeamChart;
