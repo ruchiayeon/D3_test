@@ -5,7 +5,6 @@ import { ICheckedDataNode, DataNode, IChecked } from "./Interface";
 export default function CheckedList({
     checked,
     data,
-    type,
 }: {
     checked: ICheckedDataNode[];
     data: DataNode;
@@ -16,8 +15,9 @@ export default function CheckedList({
 
     d3.hierarchy(data).eachBefore(
         (() => (d) => {
+            const IsChecked = groupCodeList.includes(d.data.groupCode);
             const defaultChecked = {
-                isChecked: groupCodeList.includes(d.data.groupCode),
+                isChecked: IsChecked,
                 isChildrenChecked: false,
                 isChildrenAllChecked: false,
                 isAdd: false,
@@ -27,22 +27,7 @@ export default function CheckedList({
                 isChildOpen: false,
             };
 
-            const changeChecked: { isRemoved?: boolean; isAdd?: boolean } = {};
-
-            if (type === "remove") {
-                changeChecked.isRemoved = groupCodeList.includes(
-                    d.data.groupCode
-                );
-            }
-
-            if (type === "add") {
-                changeChecked.isAdd = groupCodeList.includes(d.data.groupCode);
-            }
-
-            CheckedMap.set(
-                d.data.groupCode,
-                Object.assign(defaultChecked, changeChecked)
-            );
+            CheckedMap.set(d.data.groupCode, defaultChecked);
         })()
     );
 

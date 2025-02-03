@@ -54,11 +54,11 @@ interface TreeNode {
 }
 
 interface ChartProps extends ITreeType {
+    duration: number;
     data: string;
-    color: string;
-    width: number;
-    height: number;
+    color: { defaultColor: string; typeColor: string };
     checked: ICheckedDataNode[];
+    nodeSize: { width: number; height: number };
 }
 
 export type {

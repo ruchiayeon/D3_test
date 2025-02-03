@@ -3,8 +3,8 @@ import { CheckedRemoveData, CheckedAddData, CheckedDefaultData } from "./List";
 
 const Options = new CreateCheckOptionList();
 
-Options.addEvent("remove", CheckedRemoveData);
-Options.addEvent("add", CheckedAddData);
-Options.addEvent("default", CheckedDefaultData);
+Options.addEventFunc("remove", CheckedRemoveData);
+Options.addEventFunc("add", CheckedAddData);
+Options.addEventFunc("default", CheckedDefaultData);
 
 export default Options;

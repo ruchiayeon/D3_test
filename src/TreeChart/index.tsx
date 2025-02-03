@@ -3,6 +3,7 @@ import * as d3 from "d3";
 import { useSelector } from "react-redux";
 
 import CheckBox from "./CheckBox";
+import OpenCloseGroupItem from "./Accodian";
 import { CustomHierarchyNode, ChartProps, IChecked } from "./Interface";
 import { ParentRecursion } from "./Parent";
 import { ChildChgCheck } from "./Child";
@@ -23,8 +24,6 @@ function Chart() {
     );
 
     const svgRef = React.useRef<SVGSVGElement | null>(null);
-    const nodeHSize = 35;
-    const nodeWSize = 30;
 
     const svg = d3
         .select(svgRef.current)
@@ -57,9 +56,6 @@ function Chart() {
 
         setCheckedNodes(checkednodes);
 
-        //타입이 삭제기능일때,
-        //타입이 추가기능일때,
-
         return;
     }
 
@@ -76,14 +72,14 @@ function Chart() {
             .attr("id", (d) => `${d.data.groupCode} groupItem`)
             .attr(
                 "transform",
-                (d) => `translate(0,${d.index * nodeHSize - 5})`
+                (d) => `translate(0,${d.index * getStore.nodeSize.height - 5})`
             );
 
         node.append("rect")
             .attr("width", 15)
             .attr("height", 15)
             .attr("id", (d) => `${d.data.groupCode} treecheckbox`)
-            .attr("x", (d) => d.depth * nodeHSize - 30)
+            .attr("x", (d) => d.depth * getStore.nodeSize.height - 30)
             .attr("y", 1)
             .attr("rx", 3)
             .attr("ry", 3)
@@ -105,15 +101,21 @@ function Chart() {
                 (d) =>
                     `${
                         d.isChildOpen || !d.children
-                            ? `M${d.depth * nodeHSize - 27} 8.5 H${
-                                  d.depth * nodeHSize - 27
-                              } ${d.depth * nodeHSize - 18}`
-                            : `M${d.depth * nodeHSize - 22.5} 4 L${
-                                  d.depth * nodeHSize - 22.5
+                            ? `M${
+                                  d.depth * getStore.nodeSize.height - 27
+                              } 8.5 H${
+                                  d.depth * getStore.nodeSize.height - 27
+                              } ${d.depth * getStore.nodeSize.height - 18}`
+                            : `M${
+                                  d.depth * getStore.nodeSize.height - 22.5
+                              } 4 L${
+                                  d.depth * getStore.nodeSize.height - 22.5
                               } 13
-                                M${d.depth * nodeHSize - 27} 8.5 H${
-                                  d.depth * nodeHSize - 27
-                              } ${d.depth * nodeHSize - 18}`
+                                M${
+                                    d.depth * getStore.nodeSize.height - 27
+                                } 8.5 H${
+                                  d.depth * getStore.nodeSize.height - 27
+                              } ${d.depth * getStore.nodeSize.height - 18}`
                     }
                      `
             )
@@ -126,7 +128,7 @@ function Chart() {
 
         node.append("rect")
             .attr("id", (d) => `${d.data.groupCode} checkbox`)
-            .attr("x", (d) => d.depth * nodeHSize - 5)
+            .attr("x", (d) => d.depth * getStore.nodeSize.height - 5)
             .attr("width", 17)
             .attr("height", 17)
             .attr("rx", 3)
@@ -152,166 +154,106 @@ function Chart() {
         node.append("text")
             .attr("dy", "0.33em")
             .attr("id", (d) => `${d.data.groupCode} groupText`)
-            .attr("x", (d) => d.depth * nodeHSize + 20)
+            .attr("x", (d) => d.depth * getStore.nodeSize.height + 20)
             .attr("y", 10)
             .style("cursor", "pointer")
             .style("display", (d) => (d.isOpen ? "block" : "none"))
+            .style("fill", "black")
             .join("text");
 
         node.append("title").text((d) => d.data.fullPath);
     }
 
     function TreeAcodian(event: Event, node: CustomHierarchyNode) {
-        //첫번째 전체 선택 기능 삭제 및 전체 open close 삭제
-        if (event.isTrusted && node.children && !node.isChildOpen) {
-            node.isChildOpen = true;
-            node.children.map((child) => {
-                child.isOpen = !child.isOpen;
-                OpenCloseGroupItem(child);
-            });
+        if (!event.isTrusted || !node.children) return;
 
-            return TreeAcodianTranslate();
-        }
-
-        if (event.isTrusted && node.children && node.isChildOpen) {
+        if (node.isChildOpen) {
             node.isChildOpen = false;
             node.descendants().map((n, i) => {
                 if (i > 0) {
                     n.isOpen = false;
                     n.isChildOpen = false;
-                    OpenCloseGroupItem(n);
+                    OpenCloseGroupItem(n, getStore);
                 }
             });
+
+            CheckTranslate();
+
+            return TreeAcodianTranslate();
+        }
+
+        //첫번째 전체 선택 기능 삭제 및 전체 open close 삭제
+        if (!node.isChildOpen) {
+            node.isChildOpen = true;
+            node.children.map((child) => {
+                child.isOpen = !child.isOpen;
+                OpenCloseGroupItem(child, getStore);
+            });
+
+            CheckTranslate();
 
             return TreeAcodianTranslate();
         }
     }
 
     function TreeAcodianTranslate() {
-        CheeckTranslate();
-
         const nodesOpen = nodes.filter((n) => n.isOpen);
 
-        setNodeHeight((nodes.filter((n) => n.isOpen).length + 2) * nodeHSize);
+        setNodeHeight(
+            (nodes.filter((n) => n.isOpen).length + 2) *
+                getStore.nodeSize.height
+        );
         setNodeWidth(
             200 +
                 nodes.filter((n) => n.isOpen)[nodesOpen.length - 1].depth *
-                    nodeWSize
+                    getStore.nodeSize.width
         );
 
         return;
     }
 
-    function CheeckTranslate() {
+    function CheckTranslate() {
         let i: number = 0;
         const depth: number = 1;
-        const duration = 100;
 
         nodes
             .filter((nv) => nv.isOpen && nv.depth === depth)
-            .map((v) => {
-                d3.select(
-                    document.getElementById(`${v.data.groupCode} groupItem`)
-                )
-                    .transition()
-                    .duration(duration)
-                    .attr("transform", `translate(0,${i * nodeHSize - 5})`);
+            .map((v) =>
+                v.eachBefore((cv) => {
+                    if (!cv.isOpen) return;
+                    i++;
 
-                d3.select(
-                    document.getElementById(`${v.data.groupCode} groupText`)
-                )
-                    .transition()
-                    .duration(duration)
-                    .style("opacity", 1)
-                    .style(
-                        "fill",
-                        v.isOpen && v.isChecked ? getStore.color : "black"
+                    d3.select(
+                        document.getElementById(
+                            `${cv.data.groupCode} groupItem`
+                        )
                     )
-                    .text(v.data.groupName);
+                        .transition()
+                        .duration(getStore.duration)
+                        .attr(
+                            "transform",
+                            `translate(0,${i * getStore.nodeSize.height - 5})`
+                        );
 
-                return v.eachBefore((cv) => {
-                    if (cv.isOpen) {
-                        i++;
-
-                        d3.select(
-                            document.getElementById(
-                                `${cv.data.groupCode} groupItem`
-                            )
+                    d3.select(
+                        document.getElementById(
+                            `${cv.data.groupCode} groupText`
                         )
-                            .transition()
-                            .duration(duration)
-                            .attr(
-                                "transform",
-                                `translate(0,${i * nodeHSize - 5})`
-                            );
-
-                        d3.select(
-                            document.getElementById(
-                                `${cv.data.groupCode} groupText`
-                            )
+                    )
+                        .transition()
+                        .duration(getStore.duration)
+                        .style("opacity", 1)
+                        .style(
+                            "fill",
+                            cv.isOpen && cv.isChecked
+                                ? getStore.color.typeColor
+                                : getStore.color.defaultColor
                         )
-                            .transition()
-                            .duration(duration)
-                            .style("opacity", 1)
-                            .style(
-                                "fill",
-                                cv.isOpen && cv.isChecked
-                                    ? getStore.color
-                                    : "black"
-                            )
-                            .text(cv.data.groupName);
 
-                        return;
-                    }
-                });
-            });
-    }
-
-    function OpenCloseGroupItem(child: CustomHierarchyNode) {
-        new CheckBox({
-            node: child,
-            color: convertColor(child, getStore.color),
-            type: getStore.type,
-        }).setCheckbox();
-
-        if (child.parent) {
-            d3.select(
-                document.getElementById(
-                    `${child.parent.data.groupCode} treecheckboxmark`
-                )
-            ).attr(
-                "d",
-                child.parent.isChildOpen
-                    ? `M${child.parent.depth * nodeHSize - 27} 8.5 H${
-                          child.parent.depth * nodeHSize - 27
-                      } ${child.parent.depth * nodeHSize - 18}`
-                    : `M${child.parent.depth * nodeHSize - 22.5} 4 L${
-                          child.parent.depth * nodeHSize - 22.5
-                      } 13
-                                M${child.parent.depth * nodeHSize - 27} 8.5 H${
-                          child.parent.depth * nodeHSize - 27
-                      } ${child.parent.depth * nodeHSize - 18}`
-            );
-        }
-
-        d3.select(
-            document.getElementById(`${child.data.groupCode} treecheckbox`)
-        )
-            .transition()
-            .duration(300)
-            .style(
-                "display",
-                `${child.isOpen && child.parent?.isOpen ? "block" : "none"}`
-            );
-
-        d3.select(
-            document.getElementById(`${child.data.groupCode} treecheckboxmark`)
-        )
-            .transition()
-            .duration(300)
-            .style(
-                "display",
-                `${child.isOpen && child.parent?.isOpen ? "block" : "none"}`
+                        .text(
+                            `${cv.data.groupName} ${cv.isRemoved} | ${cv.isChecked}`
+                        );
+                })
             );
     }
 
@@ -326,10 +268,10 @@ function Chart() {
             return;
         }
 
-        const root = CheckedData.createEventClass(getStore.type, {
+        const root = CheckedData.createEventFunction(getStore.type, {
             checked: getStore.checked,
-            data: dataJson,
             type: getStore.type,
+            data: dataJson,
             defaultView: 1,
         });
 
@@ -349,11 +291,11 @@ function Chart() {
 
         const nodesOpen = nodes.filter((n) => n.isOpen);
 
-        setNodeHeight((nodesOpen.length + 1) * nodeHSize);
+        setNodeHeight((nodesOpen.length + 1) * getStore.nodeSize.height);
         setNodeWidth(
             200 +
                 nodes.filter((n) => n.isOpen)[nodesOpen.length - 1].depth *
-                    nodeWSize
+                    getStore.nodeSize.width
         );
     }, [getStore]);
 
@@ -363,7 +305,10 @@ function Chart() {
             if (!n.children) {
                 return new CheckBox({
                     node: n,
+                    color: {
                         typeColor: convertColor(n, getStore.color.typeColor),
+                        defaultColor: getStore.color.defaultColor,
+                    },
                     type: getStore.type,
                 }).setCheckbox();
             }
@@ -376,6 +321,9 @@ function Chart() {
 
             return new CheckBox({
                 node: n,
+                color: {
+                    typeColor: convertColor(n, getStore.color.typeColor),
+                    defaultColor: getStore.color.defaultColor,
                 },
                 type: getStore.type,
             }).setCheckbox();

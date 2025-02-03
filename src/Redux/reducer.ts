@@ -4,10 +4,10 @@ import { ICheckedDataNode, ITreeType } from "../TreeChart/Interface";
 export const counterSlice = createSlice({
     name: "tree",
     initialState: {
-        type: "",
-        typecolor: "",
-        color: "",
-        checkedMap: {},
+        type: "detault",
+        duration: 100,
+        color: { typeColor: "", defaultColor: "#17171B" },
+        nodeSize: { height: 35, width: 30 },
         data: "",
         checked: [{ groupCode: "", groupName: "", fullPathCode: "" }],
     },
@@ -24,25 +24,21 @@ export const counterSlice = createSlice({
         setTreeType: (state, action: PayloadAction<ITreeType>) => {
             state.type = action.payload.type;
         },
-        setTreeColor: (state, action: PayloadAction<{ color: string }>) => {
-            state.color = action.payload.color;
-        },
-        setTreeTypeColor: (
+        setTreeColor: (
             state,
-            action: PayloadAction<{ typecolor: string }>
+            action: PayloadAction<{ typeColor: string; defaultColor: string }>
         ) => {
-            state.typecolor = action.payload.typecolor;
+            if (action.payload.typeColor)
+                state.color.typeColor = action.payload.typeColor;
+
+            if (action.payload.defaultColor)
+                state.color.defaultColor = action.payload.defaultColor;
         },
     },
 });
 
 // Action creators are generated for each case reducer function
-export const {
-    setTreeData,
-    setTreeChecked,
-    setTreeType,
-    setTreeColor,
-    setTreeTypeColor,
-} = counterSlice.actions;
+export const { setTreeData, setTreeChecked, setTreeType, setTreeColor } =
+    counterSlice.actions;
 
 export default counterSlice.reducer;
