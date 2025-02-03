@@ -41,6 +41,14 @@ function TeamChart() {
             return;
         }
 
+        if (getStore.type === "remove" && !node.isRemoved) {
+            return;
+        }
+
+        if (getStore.type === "add" && node.isAdd) {
+            return;
+        }
+
         //하위 children 이벤트
         const child = ChildChgCheck({
             node,
