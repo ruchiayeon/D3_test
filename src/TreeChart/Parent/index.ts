@@ -27,7 +27,7 @@ export function ParentRecursion({ node, color, type }: ITreeCheckBox) {
 }
 
 //재귀의 형태로 체크 진행한다.
-function ChgParentIsChildChecked({
+export function ChgParentIsChildChecked({
     node,
     color,
     type,
