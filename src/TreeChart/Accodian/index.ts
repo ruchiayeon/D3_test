@@ -34,11 +34,9 @@ export default function OpenCloseGroupItem(
                       child.parent.depth * getStore.nodeSize.height - 22.5
                   } 4 L${
                       child.parent.depth * getStore.nodeSize.height - 22.5
-                  } 13
-                            M${
-                                child.parent.depth * getStore.nodeSize.height -
-                                27
-                            } 8.5 H${
+                  } 13 M${
+                      child.parent.depth * getStore.nodeSize.height - 27
+                  } 8.5 H${
                       child.parent.depth * getStore.nodeSize.height - 27
                   } ${child.parent.depth * getStore.nodeSize.height - 18}`
         );
