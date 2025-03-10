@@ -66,9 +66,7 @@ export default function LineChart() {
 
     // x range 업데이트
     x.range(
-      [marginLeft, width - marginRight * 2].map((d) =>
-        event.transform.applyX(d)
-      )
+      [marginLeft, width - marginRight].map((d) => event.transform.applyX(d))
     );
 
     // bars의 x-position 및 width 업데이트
@@ -108,7 +106,7 @@ export default function LineChart() {
   React.useEffect(() => {
     const tooltip = d3
       .select(tooltipRef.current)
-      .style("visibility", "hidden")
+      .style("display", "none")
       .style("position", "absolute")
       .style("color", "black");
 
@@ -163,7 +161,7 @@ export default function LineChart() {
         return tooltip
           .transition()
           .duration(200)
-          .style("visibility", "visible")
+          .style("display", "block")
           .style("left", `${e.pageX + 20}px`)
           .style("top", `${e.pageY}px`)
           .style("opacity", 1);
@@ -177,7 +175,7 @@ export default function LineChart() {
         tooltip
           .transition()
           .duration(200)
-          .style("visibility", "hidden")
+          .style("display", "none")
           .style("opacity", 0);
       });
 
@@ -212,13 +210,15 @@ export default function LineChart() {
         return tooltip
           .transition()
           .duration(200)
-          .style("visibility", "visible")
+          .style("display", "block")
           .style("left", `${event.pageX + 20}px`)
           .style("top", `${event.pageY}px`)
           .style("opacity", 1);
       })
       .on("mousemove", (event) => {
         tooltip
+          .transition()
+          .duration(100)
           .style("left", `${event.pageX + 20}px`)
           .style("top", `${event.pageY}px`);
       })
@@ -226,7 +226,7 @@ export default function LineChart() {
         tooltip
           .transition()
           .duration(200)
-          .style("visibility", "hidden")
+          .style("display", "none")
           .style("opacity", 0);
       });
 
@@ -250,7 +250,7 @@ export default function LineChart() {
       .call(yAxis)
       .call((g) =>
         g
-          .selectAll(".tick line")
+          .selectAll(".y-axis line")
           .clone()
           .attr("x2", width)
           .attr("stroke-opacity", 0.05)
