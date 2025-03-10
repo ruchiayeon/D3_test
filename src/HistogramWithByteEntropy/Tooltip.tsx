@@ -15,29 +15,64 @@ export default function Tooltip(props: {
       style={{
         background: "white",
         borderRadius: "5px",
-        boxShadow: "0 0 4px",
-        padding: "1rem",
+        boxShadow: "0 0 4px hsla(0, 0.00%, 0.00%, 0.47)",
       }}
     >
       <section
         style={{
-          display: "flex",
-          gap: "1rem",
-          justifyContent: "space-between",
+          background: "#eee",
+          borderRadius: "5px 5px 0 0",
+          padding: "0.7rem",
+          fontSize: "13px",
         }}
       >
-        <strong style={{ color: colors.histogram }}>Histogram</strong>
-        <div>{histogramData[selectIdx].toLocaleString()}</div>
+        {selectIdx}
       </section>
       <section
         style={{
-          display: "flex",
-          gap: "1rem",
-          justifyContent: "space-between",
+          padding: "0.7rem",
         }}
       >
-        <strong style={{ color: colors.entropy }}>Byte Entropy</strong>
-        <div>{entropyData[selectIdx].toLocaleString()}</div>
+        <div
+          style={{
+            display: "flex",
+            gap: "1rem",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: 5,
+              background: colors.histogram,
+            }}
+          />
+          <strong style={{ fontSize: "13px" }}>
+            {histogramData[selectIdx].toLocaleString()}
+          </strong>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            gap: "1rem",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: 5,
+              background: colors.entropy,
+            }}
+          />
+          <strong style={{ fontSize: "13px" }}>
+            {entropyData[selectIdx].toLocaleString()}
+          </strong>
+        </div>
       </section>
     </div>
   );

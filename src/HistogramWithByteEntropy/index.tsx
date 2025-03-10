@@ -17,7 +17,7 @@ export default function LineChart() {
   const maxScale = 30;
   const dataSet = histoData.histogram.map((v, i) => [v, i]);
   const dataSet2 = entropyData.byteentropy.map((v, i) => [v, i]);
-  const defaultBar = (width - marginLeft) / (256 * 3);
+  const defaultBar = (width - marginLeft) / (255 * 3);
 
   const x = d3
     .scaleLinear()
@@ -48,14 +48,14 @@ export default function LineChart() {
   const yAxis = d3.axisLeft(y);
 
   //hook
-  const [tooltip, setTooltip] = React.useState(0);
+  const [toolTips, setTooltip] = React.useState(0);
 
   function zoomed(
     event: d3.D3ZoomEvent<SVGSVGElement, unknown>,
     svg: d3.Selection<SVGSVGElement | null, unknown, null, undefined>
   ) {
     const zoomScale = event.transform.k; // zoom factor (확대 비율)
-    const barwidth = ((width - marginLeft) * zoomScale) / (256 * 3);
+    const barwidth = ((width - marginLeft) * zoomScale) / (255 * 3);
     const maxXScale = 25 * zoomScale > 260 ? 255 : 25 * zoomScale;
     const zoomedxAxis = d3
       .axisBottom(x)
@@ -76,25 +76,25 @@ export default function LineChart() {
       .selectAll(".byteentropy-bars rect")
       .attr("transform", `translate(${barwidth * 2},0)`)
       .attr("x", (d) => x((d as number[])[1])) // d[1]은 데이터에서의 x 값
-      .attr("width", () => ((width - marginLeft) * zoomScale) / (256 * 3));
+      .attr("width", () => ((width - marginLeft) * zoomScale) / (255 * 3));
 
     svg
       .selectAll(".histogram-bars rect")
       .attr("transform", `translate(${barwidth},0)`)
       .attr("x", (d) => x((d as number[])[1])) // d[1]은 데이터에서의 x 값
-      .attr("width", () => ((width - marginLeft) * zoomScale) / (256 * 3));
+      .attr("width", () => ((width - marginLeft) * zoomScale) / (255 * 3));
 
     svg
       .selectAll(".byteentropy-section rect")
       .attr("transform", `translate(${barwidth * 2},0)`)
       .attr("x", (d) => x((d as number[])[1])) // d[1]은 데이터에서의 x 값
-      .attr("width", () => ((width - marginLeft) * zoomScale) / (256 * 3));
+      .attr("width", () => ((width - marginLeft) * zoomScale) / (255 * 3));
 
     svg
       .selectAll(".histogram-section rect")
       .attr("transform", `translate(${barwidth},0)`)
       .attr("x", (d) => x((d as number[])[1])) // d[1]은 데이터에서의 x 값
-      .attr("width", () => ((width - marginLeft) * zoomScale) / (256 * 3));
+      .attr("width", () => ((width - marginLeft) * zoomScale) / (255 * 3));
 
     // x-axis 업데이트
     svg.selectAll<SVGGElement, unknown>(".x-axis").call(zoomedxAxis);
@@ -161,9 +161,12 @@ export default function LineChart() {
       .on("mouseover", (e, d) => {
         setTooltip(d[1]);
         return tooltip
+          .transition()
+          .duration(200)
           .style("visibility", "visible")
           .style("left", `${e.pageX + 20}px`)
-          .style("top", `${e.pageY}px`);
+          .style("top", `${e.pageY}px`)
+          .style("opacity", 1);
       })
       .on("mousemove", (event) => {
         tooltip
@@ -171,7 +174,11 @@ export default function LineChart() {
           .style("top", `${event.pageY}px`);
       })
       .on("mouseout", () => {
-        tooltip.style("visibility", "hidden");
+        tooltip
+          .transition()
+          .duration(200)
+          .style("visibility", "hidden")
+          .style("opacity", 0);
       });
 
     svg
@@ -203,9 +210,12 @@ export default function LineChart() {
       .on("mouseover", (event, d) => {
         setTooltip(d[1]);
         return tooltip
+          .transition()
+          .duration(200)
           .style("visibility", "visible")
           .style("left", `${event.pageX + 20}px`)
-          .style("top", `${event.pageY}px`);
+          .style("top", `${event.pageY}px`)
+          .style("opacity", 1);
       })
       .on("mousemove", (event) => {
         tooltip
@@ -213,7 +223,11 @@ export default function LineChart() {
           .style("top", `${event.pageY}px`);
       })
       .on("mouseout", () => {
-        tooltip.style("visibility", "hidden");
+        tooltip
+          .transition()
+          .duration(200)
+          .style("visibility", "hidden")
+          .style("opacity", 0);
       });
 
     // Add the x-axis.
@@ -234,6 +248,13 @@ export default function LineChart() {
       .attr("class", "y-axis")
       .attr("transform", `translate(${marginLeft},0)`)
       .call(yAxis)
+      .call((g) =>
+        g
+          .selectAll(".tick line")
+          .clone()
+          .attr("x2", width)
+          .attr("stroke-opacity", 0.05)
+      )
       .insert("rect", ":first-child") // Insert rect before the y-axis
       .attr("x", -marginLeft) // Position the rect to cover the entire y-axis area
       .attr("y", 0)
@@ -254,7 +275,7 @@ export default function LineChart() {
       <Tooltip
         histogramData={histoData.histogram}
         entropyData={entropyData.byteentropy}
-        selectIdx={tooltip}
+        selectIdx={toolTips}
         tooltipRef={tooltipRef}
         colors={{ histogram: "blue", entropy: "red" }}
       />
